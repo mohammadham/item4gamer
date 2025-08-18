@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:Item4Gamer/pages/frized_splash_screen.dart'; // import برای SplashScreenFrize
-import 'package:Item4Gamer/config.dart'; // import برای LOGO_MOTION_TYPE
-import 'package:Item4Gamer/widgets/helpers.dart'; // import برای Globals اگر لازم باشه
+import 'package:G4A4/pages/frized_splash_screen.dart'; // import برای SplashScreenFrize
+import 'package:G4A4/config.dart'; // import برای LOGO_MOTION_TYPE
+import 'package:G4A4/widgets/helpers.dart'; // import برای Globals اگر لازم باشه
 
 class LoadingService {
   static OverlayEntry? _overlayEntry;

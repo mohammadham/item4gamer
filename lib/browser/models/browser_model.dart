@@ -3,7 +3,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:Item4Gamer/browser/util.dart';
+import 'package:G4A4/browser/util.dart';
 import 'package:window_manager_plus/window_manager_plus.dart';
 import '../../main.dart';
 import 'web_archive_model.dart';

@@ -1,23 +1,23 @@
 import 'dart:convert';
 import 'dart:io';
 // import 'dart:ui_web';
-import 'package:Item4Gamer/browser/models/window_model.dart';
-import 'package:Item4Gamer/main.dart';
-import 'package:Item4Gamer/pages/frized_splash_screen.dart';
-import 'package:Item4Gamer/pages/internetError.dart';
-import 'package:Item4Gamer/pages/loading_service.dart';
-import 'package:Item4Gamer/services/auth_service.dart';
-import 'package:Item4Gamer/services/dataStore_service.dart';
-import 'package:Item4Gamer/browser/webview_tab.dart';
-import 'package:Item4Gamer/browser/models/webview_model.dart';
-import 'package:Item4Gamer/widgets/appWrapper.dart';
+import 'package:G4A4/browser/models/window_model.dart';
+import 'package:G4A4/main.dart';
+import 'package:G4A4/pages/frized_splash_screen.dart';
+import 'package:G4A4/pages/internetError.dart';
+import 'package:G4A4/pages/loading_service.dart';
+import 'package:G4A4/services/auth_service.dart';
+import 'package:G4A4/services/dataStore_service.dart';
+import 'package:G4A4/browser/webview_tab.dart';
+import 'package:G4A4/browser/models/webview_model.dart';
+import 'package:G4A4/widgets/appWrapper.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../config.dart';
-import 'package:Item4Gamer/widgets/helpers.dart';
+import 'package:G4A4/widgets/helpers.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {

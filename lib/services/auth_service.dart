@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:Item4Gamer/config.dart';
+import 'package:G4A4/config.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

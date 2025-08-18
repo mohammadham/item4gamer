@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'package:Item4Gamer/services/dataStore_service.dart';
-import 'package:Item4Gamer/widgets/helpers.dart';
+import 'package:G4A4/services/dataStore_service.dart';
+import 'package:G4A4/widgets/helpers.dart';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
-import 'package:Item4Gamer/config.dart';
+import 'package:G4A4/config.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -78,7 +78,7 @@ class DeepLinkService {
       // Handle both HTTPS and custom scheme
       if (((uri.scheme == 'https' || uri.scheme == 'http') &&
               _isValidWebViewLink(uri)) ||
-          uri.scheme == 'item4gamer') {
+          uri.scheme == 'g4a4') {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           final processedLink =
               _isLoginDeepLink(uri) ? 'login' : _processLink(uri);
@@ -111,19 +111,19 @@ class DeepLinkService {
     // // Convert external URLs to internal app format if needed
     // if (uri.scheme == 'https') {
     //   // You might want to modify the URL for internal app handling
-    //   return uri.toString().replaceFirst('https://', 'item4gamer://');
+    //   return uri.toString().replaceFirst('https://', 'G4A4://');
     // }
     // if (uri.scheme == 'http') {
     //   // You might want to modify the URL for internal app handling
-    //   return uri.toString().replaceFirst('http://', 'item4gamer://');
+    //   return uri.toString().replaceFirst('http://', 'G4A4://');
     // }
-    if (uri.scheme == 'item4gamer') {
+    if (uri.scheme == 'g4a4') {
       // You might want to modify the URL for internal app handling
-      return uri.toString().replaceFirst('item4gamer://', 'https://');
+      return uri.toString().replaceFirst('g4a4://', 'https://');
     }
-    if (uri.host == 'item4gamer.app') {
+    if (uri.host == 'g4a4.app') {
       // You might want to modify the URL for internal app handling
-      return uri.toString().replaceFirst('item4gamer.app', 'item4gamer.com');
+      return uri.toString().replaceFirst('g4a4.app', 'g4a4.com');
     }
 
     return uri.toString();
@@ -138,7 +138,7 @@ class DeepLinkService {
   bool _isValidWebViewLink(Uri uri) {
     try {
       final baseUri = Uri.parse(URL);
-      return uri.host.contains('item4gamer') || uri.host.contains('Item4Gamer');
+      return uri.host.contains('g4a4') || uri.host.contains('g4a4');
     } catch (e) {
       debugPrint('Error validating web view link: $e');
       return false;

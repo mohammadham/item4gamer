@@ -6,7 +6,7 @@ on:
       - 'release/**'
       - main
       - master
-      - item4gamer.com
+      - g4a4.com
       - add-browser
   pull_request:
     branches:

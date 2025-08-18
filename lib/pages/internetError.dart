@@ -1,20 +1,20 @@
-import 'package:Item4Gamer/browser/models/webview_model.dart';
-import 'package:Item4Gamer/browser/webview_tab.dart';
-import 'package:Item4Gamer/pages/loading_service.dart';
-import 'package:Item4Gamer/services/UrlListManager.dart';
-import 'package:Item4Gamer/services/dataStore_service.dart';
-import 'package:Item4Gamer/widgets/appWrapper.dart';
-import 'package:Item4Gamer/widgets/helpers.dart';
-import 'package:Item4Gamer/widgets/myApp.dart';
+import 'package:G4A4/browser/models/webview_model.dart';
+import 'package:G4A4/browser/webview_tab.dart';
+import 'package:G4A4/pages/loading_service.dart';
+import 'package:G4A4/services/UrlListManager.dart';
+import 'package:G4A4/services/dataStore_service.dart';
+import 'package:G4A4/widgets/appWrapper.dart';
+import 'package:G4A4/widgets/helpers.dart';
+import 'package:G4A4/widgets/myApp.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:Item4Gamer/config.dart';
+import 'package:G4A4/config.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import '../services/connectivity_service.dart';
 import 'home.dart';
-import 'package:Item4Gamer/main.dart';
+import 'package:G4A4/main.dart';
 
 class ErrorPage extends StatefulWidget {
   final String? returnPath;

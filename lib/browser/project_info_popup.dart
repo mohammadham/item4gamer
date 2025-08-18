@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:Item4Gamer/browser/models/browser_model.dart';
-import 'package:Item4Gamer/browser/models/webview_model.dart';
-import 'package:Item4Gamer/browser/util.dart';
-import 'package:Item4Gamer/browser/webview_tab.dart';
+import 'package:G4A4/browser/models/browser_model.dart';
+import 'package:G4A4/browser/models/webview_model.dart';
+import 'package:G4A4/browser/util.dart';
+import 'package:G4A4/browser/webview_tab.dart';
 import 'package:flutter_font_icons/flutter_font_icons.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:provider/provider.dart';

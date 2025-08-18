@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:Item4Gamer/config.dart';
+import 'package:G4A4/config.dart';
 
 class AppController extends GetxController {
   var authToken = "".obs; // Observable variable

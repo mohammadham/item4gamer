@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:Item4Gamer/pages/frized_splash_screen.dart';
-import 'package:Item4Gamer/services/auth_service.dart';
-import 'package:Item4Gamer/services/dataStore_service.dart';
-import 'package:Item4Gamer/services/deep_link_service.dart';
+import 'package:G4A4/pages/frized_splash_screen.dart';
+import 'package:G4A4/services/auth_service.dart';
+import 'package:G4A4/services/dataStore_service.dart';
+import 'package:G4A4/services/deep_link_service.dart';
 import 'package:firebase_notifications_handler/firebase_notifications_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -285,7 +285,7 @@ Future<bool> checkLoginStatus() async {
   }
 }
 
- Widget buildLoadingScreen() {
+Widget buildLoadingScreen() {
   return const Scaffold(
     body: RepaintBoundary(
       child: IgnorePointer(

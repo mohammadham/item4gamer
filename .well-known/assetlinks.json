@@ -2,7 +2,7 @@
   "relation": ["delegate_permission/common.handle_all_urls"],
   "target": {
     "namespace": "android_app",
-    "package_name": "com.g4a4.item4gamer",
+    "package_name": "com.g4a4.g4a4",
     "sha256_cert_fingerprints": [
       
       "F4:A1:47:34:84:8E:2F:53:33:02:4C:22:D6:4C:A7:57:B2:F8:7D:49:12:37:66:31:10:B8:B5:E6:9B:8F:95:D2",
@@ -15,7 +15,7 @@
   "relation": ["delegate_permission/common.handle_all_urls"],
   "target": {
     "namespace": "android_app",
-    "package_name": "com.example.item4gamer",
+    "package_name": "com.example.g4a4",
     "sha256_cert_fingerprints": [
       "F4:A1:47:34:84:8E:2F:53:33:02:4C:22:D6:4C:A7:57:B2:F8:7D:49:12:37:66:31:10:B8:B5:E6:9B:8F:95:D2",
       "E4:36:16:D7:BE:B3:1A:2E:B6:49:AA:A0:1C:85:F7:D7:93:7C:8B:AB:61:15:CB:83:73:7C:EA:EC:01:86:29:46",

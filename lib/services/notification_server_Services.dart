@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:Item4Gamer/config.dart';
+import 'package:G4A4/config.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 

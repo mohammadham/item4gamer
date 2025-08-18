@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
 const bool isWebViewWithoutLogin = false;
-const String URL = "https://item4gamer.com/"; // most end with /
-const String TITLE = "Item4Gamer";
+const String URL = "https://g4a4.com/"; // most end with /
+const String TITLE = "G4A4";
 //rest url api address for firebase and another Services API
-const String REST_URL = 'https://item4gamer.com'; // dont end with /
+const String REST_URL = 'https://g4a4.com'; // dont end with /
 const String LOGIN_URL =
-    "https://item4gamer.com/my-account/"; // most end with /  and  if LOGIN_WITH_API and FireBaseAuth is not available and set to false show  LOGIN_URL instead
+    "https://g4a4.com/my-account/"; // most end with /  and  if LOGIN_WITH_API and FireBaseAuth is not available and set to false show  LOGIN_URL instead
 const bool LOGIN_WITH_API =
     true; // if LOGIN_WITH_API and firebase is not available and set to false show  LOGIN_URL instead
 const String LOGIN_TYPE =
-    "email"; // "phone" or "email" - determines which login flow to use
+    "phone"; // "phone" or "email" - determines which login flow to use
 const String LOGOUT_PATH =
     'my-account/customer-logout'; // most end without / and not with base URL like
 const String CLOSE_NAV_BAR_URL = 'checkout';
@@ -26,15 +26,19 @@ const String REST_URL_PREFIX = 'wp-json';
 
 //logo motion for naviagtion
 enum CustomSplashScreenType { lottie, image, gif, video }
+
 const String LOGO_MOTION_LOTTIE = 'assets/gifs/data.json';
 const String LOGO_MOTION_GIF = 'assets/gifs/loading.gif';
-const String LOGO_MOTION_IMAGE = 'assets/gifs/loading.png';// if is it not exist use LOGO
+const String LOGO_MOTION_IMAGE =
+    'assets/gifs/loading.png'; // if is it not exist use LOGO
 const String LOGO_MOTION_VIDEO = 'assets/gifs/loading.mp4';
 const String LOGO_MOTION = 'assets/gifs/loading.gif';
-const double LOGO_MOTION_WIDTH_PER = 0.4; // its % width for image and gif
-const double LOGO_MOTION_HEIGHT_PER = 0.6; // its % height for image and gif
-const int LOGO_MOTION_TIME = 1 ; // time of play video  or lottie or gif or show image
-const CustomSplashScreenType LOGO_MOTION_TYPE = CustomSplashScreenType.image;//image || gif || video || lottie
+const double LOGO_MOTION_WIDTH_PER = 1; // its % width for image and gif
+const double LOGO_MOTION_HEIGHT_PER = 1; // its % height for image and gif
+const int LOGO_MOTION_TIME =
+    3; // time of play video  or lottie or gif or show image
+const CustomSplashScreenType LOGO_MOTION_TYPE =
+    CustomSplashScreenType.lottie; //image || gif || video || lottie
 
 //logos use in application
 const String LOGO = 'assets/images/logoLight.png';
@@ -343,7 +347,7 @@ const List<String> ALLOWED_URLS = [
   'doubleclick.net',
   'googleadservices.com',
   'googlesyndication.com',
-  'item4gamer.com'
+  'g4a4.com'
 ];
 
 //==========================================================================

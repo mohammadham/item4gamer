@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:Item4Gamer/browser/material_transparent_page_route.dart';
+import 'material_transparent_page_route.dart';
 
 class CustomPopupDialogPageRoute<T> extends MaterialTransparentPageRoute<T> {
   final Color overlayColor;

@@ -1,11 +1,9 @@
 import 'dart:io' as io;
 
-import 'package:Item4Gamer/pages/loading_service.dart';
+import 'package:G4A4/pages/loading_service.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:Item4Gamer/config.dart';
-
-
+import 'package:G4A4/config.dart';
 
 class SplashScreen extends StatefulWidget {
   final CustomSplashScreenType typeOfSplashScreen;
@@ -36,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
   late AnimationController _controller;
   bool _isPreloaded = false;
-   ImageProvider? _preloadedImage;
+  ImageProvider? _preloadedImage;
   bool _hasAddedListener = false;
 
   @override
@@ -57,7 +55,9 @@ class _SplashScreenState extends State<SplashScreen>
     _preloadAssets();
 
     // Navigate after timeout if exitInEnd is not true
-    if (widget.exitInEnd != true || (widget.typeOfSplashScreen == CustomSplashScreenType.image || widget.typeOfSplashScreen == CustomSplashScreenType.gif )) {
+    if (widget.exitInEnd != true ||
+        (widget.typeOfSplashScreen == CustomSplashScreenType.image ||
+            widget.typeOfSplashScreen == CustomSplashScreenType.gif)) {
       _navigateToHome();
     }
   }

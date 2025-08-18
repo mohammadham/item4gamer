@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:Item4Gamer/config.dart';
+import 'package:G4A4/config.dart';
 import 'dart:io' as io;
+
 class SplashScreenFrize extends StatefulWidget {
   final String? lottoiePath;
   final String? imagePath;
@@ -28,26 +29,23 @@ class _SplashScreenFrizeState extends State<SplashScreenFrize>
   void initState() {
     super.initState();
     // if (widget.type == CustomSplashScreenType.lottie) {
-      _controller = AnimationController(
-        vsync: this,
-        value: widget.splashTimeFrized,
-      );
+    _controller = AnimationController(
+      vsync: this,
+      value: widget.splashTimeFrized,
+    );
     // } else {
-      _preloadAssets();
+    _preloadAssets();
     // }
   }
-    Future<void> _preloadAssets() async {
-      final String path = widget.imagePath ??
-          (await io.File(LOGO_MOTION_IMAGE).exists()
-              ? LOGO_MOTION_IMAGE
-              : LOGO);
-      _preloadedImage = AssetImage(path);
-      await precacheImage(_preloadedImage!, context);
-      if(mounted)
-        setState(() {
 
-        });
-    }
+  Future<void> _preloadAssets() async {
+    final String path = widget.imagePath ??
+        (await io.File(LOGO_MOTION_IMAGE).exists() ? LOGO_MOTION_IMAGE : LOGO);
+    _preloadedImage = AssetImage(path);
+    await precacheImage(_preloadedImage!, context);
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -59,23 +57,29 @@ class _SplashScreenFrizeState extends State<SplashScreenFrize>
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: widget.type == CustomSplashScreenType.lottie ? Lottie.asset(
-          widget.lottoiePath ?? LOGO_MOTION_LOTTIE,
-          width: MediaQuery.of(context).size.width * 0.8,
-          height: MediaQuery.of(context).size.height * 0.8,
-          controller: _controller,
-          frameRate: FrameRate.max, // Ensure smooth freeze
-          // fit: BoxFit.contain,
-          backgroundLoading: true,
-          filterQuality: FilterQuality.medium,
-        ): _preloadedImage == null ? const SizedBox.shrink():Image(
-          image: _preloadedImage!,
-          width: MediaQuery.of(context).size.width * LOGO_MOTION_WIDTH_PER,
-          height: MediaQuery.of(context).size.height * LOGO_MOTION_HEIGHT_PER,
-          fit: BoxFit.contain,
-          filterQuality:
-          FilterQuality.medium, // Balance quality and performance
-        ),
+        child: widget.type == CustomSplashScreenType.lottie
+            ? Lottie.asset(
+                widget.lottoiePath ?? LOGO_MOTION_LOTTIE,
+                width: MediaQuery.of(context).size.width * 0.8,
+                height: MediaQuery.of(context).size.height * 0.8,
+                controller: _controller,
+                frameRate: FrameRate.max, // Ensure smooth freeze
+                // fit: BoxFit.contain,
+                backgroundLoading: true,
+                filterQuality: FilterQuality.medium,
+              )
+            : _preloadedImage == null
+                ? const SizedBox.shrink()
+                : Image(
+                    image: _preloadedImage!,
+                    width: MediaQuery.of(context).size.width *
+                        LOGO_MOTION_WIDTH_PER,
+                    height: MediaQuery.of(context).size.height *
+                        LOGO_MOTION_HEIGHT_PER,
+                    fit: BoxFit.contain,
+                    filterQuality:
+                        FilterQuality.medium, // Balance quality and performance
+                  ),
       ),
     );
   }

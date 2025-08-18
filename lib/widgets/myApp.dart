@@ -1,21 +1,22 @@
-import 'package:Item4Gamer/config.dart';
-import 'package:Item4Gamer/model/notification_state.dart';
-import 'package:Item4Gamer/pages/home.dart';
-import 'package:Item4Gamer/pages/internetError.dart';
-import 'package:Item4Gamer/pages/loading_service.dart';
-import 'package:Item4Gamer/pages/login.dart';
-import 'package:Item4Gamer/services/auth_service.dart';
-import 'package:Item4Gamer/services/connectivity_service.dart';
-import 'package:Item4Gamer/services/dataStore_service.dart';
-import 'package:Item4Gamer/services/notification_server_Services.dart';
-import 'package:Item4Gamer/widgets/helpers.dart';
-import 'package:Item4Gamer/widgets/routeGenerator.dart';
+import 'package:G4A4/config.dart';
+import 'package:G4A4/model/notification_state.dart';
+import 'package:G4A4/pages/home.dart';
+import 'package:G4A4/pages/internetError.dart';
+import 'package:G4A4/pages/loading_service.dart';
+import 'package:G4A4/pages/login.dart';
+import 'package:G4A4/services/auth_service.dart';
+import 'package:G4A4/services/connectivity_service.dart';
+import 'package:G4A4/services/dataStore_service.dart';
+import 'package:G4A4/services/notification_server_Services.dart';
+import 'package:G4A4/widgets/helpers.dart';
+import 'package:G4A4/widgets/routeGenerator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
   @override
@@ -173,7 +174,10 @@ class _MyAppState extends State<MyApp> {
               overscroll: false,
             ),
             child: Directionality(
-              textDirection: Localizations.localeOf(context).languageCode == 'fa' ? TextDirection.rtl:TextDirection.ltr,
+              textDirection:
+                  Localizations.localeOf(context).languageCode == 'fa'
+                      ? TextDirection.rtl
+                      : TextDirection.ltr,
               child: _buildMainContent(context), // ساختار بدون Stack حفظ شده
             ),
           );
@@ -205,68 +209,69 @@ class _MyAppState extends State<MyApp> {
           if (!snapshot.data!) return const ErrorPage();
           if (isWebViewWithoutLogin) return HomePage();
 
-    return FutureBuilder<bool>(
-    future: checkLoginStatus(),
-    builder: (context, loginSnapshot) {
-    if (loginSnapshot.connectionState == ConnectionState.done) {
-      // WidgetsBinding.instance.addPostFrameCallback((_) {
-      //   LoadingService.hide();
-      // });
+          return FutureBuilder<bool>(
+            future: checkLoginStatus(),
+            builder: (context, loginSnapshot) {
+              if (loginSnapshot.connectionState == ConnectionState.done) {
+                // WidgetsBinding.instance.addPostFrameCallback((_) {
+                //   LoadingService.hide();
+                // });
 
-      if (!loginSnapshot.hasData) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          LoadingService.show(context); // اگر هنوز data ندارد، show
-        });
-        return const SizedBox
-            .shrink(); // placeholder خالی به جای buildLoadingScreen
-      }
+                if (!loginSnapshot.hasData) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    LoadingService.show(context); // اگر هنوز data ندارد، show
+                  });
+                  return const SizedBox
+                      .shrink(); // placeholder خالی به جای buildLoadingScreen
+                }
 
-      if (loginSnapshot.data!) {
-        AuthService()
-            .saveAccessToken(Get.find<AppController>().getAuthToken());
-        Get.find<AppController>()
-            .updateIsFirebaseAuthNOTAccessible(false);
-        Get.find<AppController>().updateIniUrl(URL);
-        return HomePage();
-      }
+                if (loginSnapshot.data!) {
+                  AuthService().saveAccessToken(
+                      Get.find<AppController>().getAuthToken());
+                  Get.find<AppController>()
+                      .updateIsFirebaseAuthNOTAccessible(false);
+                  Get.find<AppController>().updateIniUrl(URL);
+                  return HomePage();
+                }
 
-      if (apiSystemProblem) return const ErrorPage();
+                if (apiSystemProblem) return const ErrorPage();
 
-      return FutureBuilder<bool>(
-        future: checkGestStatus(),
-        builder: (context, gestSnapshot) {
-          if (!gestSnapshot.hasData) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              LoadingService.show(context);
-            });
-            return const SizedBox.shrink(); // placeholder
-          }
+                return FutureBuilder<bool>(
+                  future: checkGestStatus(),
+                  builder: (context, gestSnapshot) {
+                    if (!gestSnapshot.hasData) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        LoadingService.show(context);
+                      });
+                      return const SizedBox.shrink(); // placeholder
+                    }
 
-          if (gestSnapshot.data!) {
-            Get.find<AppController>()
-                .updateIsFirebaseAuthNOTAccessible(false);
-            Get.find<AppController>().updateIniUrl(URL);
-            return const HomePage();
-          }
+                    if (gestSnapshot.data!) {
+                      Get.find<AppController>()
+                          .updateIsFirebaseAuthNOTAccessible(false);
+                      Get.find<AppController>().updateIniUrl(URL);
+                      return const HomePage();
+                    }
 
-          AuthService().clearAccessToken();
-          if ((FireBaseAuth && !isFirebaseAccessible) ||
-              !LOGIN_WITH_API) {
-            Get.find<AppController>().updateIsFirebaseAuthNOTAccessible(
-                FireBaseAuth && !isFirebaseAccessible);
-            Get.find<AppController>().updateIniUrl(LOGIN_URL);
-            return HomePage();
-          }
+                    AuthService().clearAccessToken();
+                    if ((FireBaseAuth && !isFirebaseAccessible) ||
+                        !LOGIN_WITH_API) {
+                      Get.find<AppController>()
+                          .updateIsFirebaseAuthNOTAccessible(
+                              FireBaseAuth && !isFirebaseAccessible);
+                      Get.find<AppController>().updateIniUrl(LOGIN_URL);
+                      return HomePage();
+                    }
 
-          Get.find<NotificationServerServices>().ClearFCMToken();
-          return const LoginRouter();
-        },
-      );
-    }
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      LoadingService.show(context);
-    });
-    return const SizedBox.shrink(); // placeholder در حین waiting
+                    Get.find<NotificationServerServices>().ClearFCMToken();
+                    return const LoginRouter();
+                  },
+                );
+              }
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                LoadingService.show(context);
+              });
+              return const SizedBox.shrink(); // placeholder در حین waiting
             },
           );
         }

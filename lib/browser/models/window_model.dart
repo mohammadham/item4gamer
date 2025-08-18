@@ -4,10 +4,10 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:Item4Gamer/main.dart';
+import 'package:G4A4/main.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:Item4Gamer/browser/models/webview_model.dart';
-import 'package:Item4Gamer/browser/webview_tab.dart';
+import 'package:G4A4/browser/models/webview_model.dart';
+import 'package:G4A4/browser/webview_tab.dart';
 import 'package:uuid/uuid.dart';
 import 'package:collection/collection.dart';
 

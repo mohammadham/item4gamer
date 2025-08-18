@@ -60,7 +60,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '139196646455',
     projectId: 'g4a4-app',
     storageBucket: 'g4a4-app.firebasestorage.app',
-    iosBundleId: 'com.g4a4.item4gamer',
+    iosBundleId: 'com.g4a4.g4a4',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
@@ -71,5 +71,4 @@ class DefaultFirebaseOptions {
     authDomain: 'g4a4-app.firebaseapp.com',
     storageBucket: 'g4a4-app.firebasestorage.app',
   );
-
 }

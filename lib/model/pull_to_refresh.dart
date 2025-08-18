@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:Item4Gamer/services/connectivity_service.dart';
+import 'package:G4A4/services/connectivity_service.dart';
 
 // Fixed issue: https://github.com/flutter/flutter/issues/39389
 class DragGesturePullToRefresh extends VerticalDragGestureRecognizer {

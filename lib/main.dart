@@ -1,17 +1,17 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:Item4Gamer/browser/webview_tab.dart';
-import 'package:Item4Gamer/model/notification_state.dart';
-import 'package:Item4Gamer/pages/loading_service.dart';
-import 'package:Item4Gamer/services/dataStore_service.dart';
-import 'package:Item4Gamer/services/deep_link_service.dart';
-import 'package:Item4Gamer/services/notification_server_Services.dart';
-import 'package:Item4Gamer/widgets/appWrapper.dart';
+import 'package:G4A4/browser/webview_tab.dart';
+import 'package:G4A4/model/notification_state.dart';
+import 'package:G4A4/pages/loading_service.dart';
+import 'package:G4A4/services/dataStore_service.dart';
+import 'package:G4A4/services/deep_link_service.dart';
+import 'package:G4A4/services/notification_server_Services.dart';
+import 'package:G4A4/widgets/appWrapper.dart';
 import 'package:firebase_notifications_handler/firebase_notifications_handler.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:Item4Gamer/firebase_options.dart';
+import 'package:G4A4/firebase_options.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:context_menus/context_menus.dart';
@@ -29,7 +29,7 @@ import 'widgets/helpers.dart';
 import 'config.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
-import 'package:Item4Gamer/pages/splash_screen.dart';
+import 'package:G4A4/pages/splash_screen.dart';
 import 'browser/models/browser_model.dart';
 import 'browser/models/webview_model.dart';
 import 'browser/models/window_model.dart';
@@ -150,7 +150,7 @@ void main(List<String> args) async {
     await Permission.scheduleExactAlarm.request();
   }
 
-  // منطق پروژه Item4Gamer
+  // منطق پروژه G4A4
   if (Platform.isAndroid) {
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: SystemUiOverlay.values);
@@ -214,8 +214,7 @@ class _SplashAppState extends State<SplashApp> {
           ),
         ),
         home: Scaffold(
-
-          body:  SplashScreen(
+          body: SplashScreen(
             typeOfSplashScreen: LOGO_MOTION_TYPE,
             splashTimeout: LOGO_MOTION_TIME,
             exitInEnd: true,

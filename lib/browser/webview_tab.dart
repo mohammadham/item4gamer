@@ -2,16 +2,16 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
-import 'package:Item4Gamer/browser/models/web_notification.dart';
-import 'package:Item4Gamer/pages/loading_service.dart';
-import 'package:Item4Gamer/services/notification_server_Services.dart';
+import 'package:G4A4/browser/models/web_notification.dart';
+import 'package:G4A4/pages/loading_service.dart';
+import 'package:G4A4/services/notification_server_Services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:Item4Gamer/main.dart';
-import 'package:Item4Gamer/browser/models/webview_model.dart';
-import 'package:Item4Gamer/browser/util.dart';
+import 'package:G4A4/main.dart';
+import 'package:G4A4/browser/models/webview_model.dart';
+import 'package:G4A4/browser/util.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
@@ -20,12 +20,12 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:get/get.dart';
-import 'package:Item4Gamer/services/auth_service.dart';
-import 'package:Item4Gamer/services/connectivity_service.dart';
-import 'package:Item4Gamer/services/dataStore_service.dart';
-import 'package:Item4Gamer/config.dart';
-import 'package:Item4Gamer/pages/internetError.dart';
-import 'package:Item4Gamer/services/UrlListManager.dart';
+import 'package:G4A4/services/auth_service.dart';
+import 'package:G4A4/services/connectivity_service.dart';
+import 'package:G4A4/services/dataStore_service.dart';
+import 'package:G4A4/config.dart';
+import 'package:G4A4/pages/internetError.dart';
+import 'package:G4A4/services/UrlListManager.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -34,8 +34,8 @@ import 'javascript_console_result.dart';
 import 'long_press_alert_dialog.dart';
 import 'models/browser_model.dart';
 import 'models/window_model.dart';
-import 'package:Item4Gamer/widgets/helpers.dart';
-import 'package:Item4Gamer/services/deep_link_service.dart';
+import 'package:G4A4/widgets/helpers.dart';
+import 'package:G4A4/services/deep_link_service.dart';
 
 final webViewTabStateKey = GlobalKey<WebViewTabState>();
 
@@ -1067,7 +1067,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
               //         WebHistoryItem(
               //             index: 0,
               //             originalUrl: WebUri(URL),
-              //             title: 'Item4Gamer',
+              //             title: 'G4A4',
               //             url: WebUri(URL));
 
               // await _webViewController!.goTo(historyItem: _element);
@@ -1435,32 +1435,42 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
                                   AnimatedOpacity(
                                     opacity: _showSplashOverlay ? 1.0 : 1.0,
                                     duration: const Duration(seconds: 2),
-                                    child: Builder( // برای دسترسی به context
+                                    child: Builder(
+                                      // برای دسترسی به context
                                       builder: (context) {
-                                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                                          LoadingService.show(context); // جایگزین child: buildLoadingScreen()
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          LoadingService.show(
+                                              context); // جایگزین child: buildLoadingScreen()
                                         });
-                                        return const SizedBox.shrink(); // placeholder، چون overlay جدا است
+                                        return const SizedBox
+                                            .shrink(); // placeholder، چون overlay جدا است
                                       },
                                     ),
                                     onEnd: () {
-                                      LoadingService.hide(); // وقتی animation تمام شد، hide
+                                      LoadingService
+                                          .hide(); // وقتی animation تمام شد، hide
                                     },
                                   ),
                                 if (isLoading && !(_hasInternet))
                                   AnimatedOpacity(
                                     opacity: _showSplashOverlay ? 1.0 : 1.0,
                                     duration: const Duration(seconds: 2),
-                                    child: Builder( // برای دسترسی به context
+                                    child: Builder(
+                                      // برای دسترسی به context
                                       builder: (context) {
-                                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                                          LoadingService.show(context); // جایگزین child: buildLoadingScreen()
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          LoadingService.show(
+                                              context); // جایگزین child: buildLoadingScreen()
                                         });
-                                        return const SizedBox.shrink(); // placeholder، چون overlay جدا است
+                                        return const SizedBox
+                                            .shrink(); // placeholder، چون overlay جدا است
                                       },
                                     ),
                                     onEnd: () {
-                                      LoadingService.hide(); // وقتی animation تمام شد، hide
+                                      LoadingService
+                                          .hide(); // وقتی animation تمام شد، hide
                                     },
                                   ),
                                 if ((isError || _isLoadingTimeout))

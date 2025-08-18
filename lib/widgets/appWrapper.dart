@@ -1,21 +1,21 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:Item4Gamer/browser/models/webview_model.dart';
-import 'package:Item4Gamer/browser/models/window_model.dart';
-import 'package:Item4Gamer/browser/util.dart';
-import 'package:Item4Gamer/browser/webview_tab.dart';
-import 'package:Item4Gamer/config.dart';
-import 'package:Item4Gamer/firebase_options.dart';
-import 'package:Item4Gamer/main.dart';
-import 'package:Item4Gamer/model/notification_state.dart';
-import 'package:Item4Gamer/pages/loading_service.dart';
-import 'package:Item4Gamer/services/auth_service.dart';
-import 'package:Item4Gamer/services/dataStore_service.dart';
-import 'package:Item4Gamer/services/deep_link_service.dart';
-import 'package:Item4Gamer/services/notification_server_Services.dart';
-import 'package:Item4Gamer/widgets/helpers.dart';
-import 'package:Item4Gamer/widgets/routeGenerator.dart';
+import 'package:G4A4/browser/models/webview_model.dart';
+import 'package:G4A4/browser/models/window_model.dart';
+import 'package:G4A4/browser/util.dart';
+import 'package:G4A4/browser/webview_tab.dart';
+import 'package:G4A4/config.dart';
+import 'package:G4A4/firebase_options.dart';
+import 'package:G4A4/main.dart';
+import 'package:G4A4/model/notification_state.dart';
+import 'package:G4A4/pages/loading_service.dart';
+import 'package:G4A4/services/auth_service.dart';
+import 'package:G4A4/services/dataStore_service.dart';
+import 'package:G4A4/services/deep_link_service.dart';
+import 'package:G4A4/services/notification_server_Services.dart';
+import 'package:G4A4/widgets/helpers.dart';
+import 'package:G4A4/widgets/routeGenerator.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_notifications_handler/firebase_notifications_handler.dart';
 import 'package:flutter/material.dart';
@@ -172,7 +172,7 @@ class _AppWrapperState extends State<AppWrapper> with WindowListener {
         AndroidNotificationChannel(
           'default',
           'Default Notifications',
-          description: 'Item4Gamer Notifications',
+          description: 'G4A4 Notifications',
           importance: Importance.high,
           playSound: true,
         ),
@@ -254,7 +254,7 @@ class _AppWrapperState extends State<AppWrapper> with WindowListener {
             channelNameGetter: (message) =>
                 'High Importance Notifications', // Static channel name
             channelDescriptionGetter: (message) =>
-                'Item4Gamer Notifications', // Static description
+                'G4A4 Notifications', // Static description
             importanceGetter: (message) =>
                 Importance.high, // High importance for pop-ups
             priorityGetter: (message) =>
@@ -320,8 +320,7 @@ class _AppWrapperState extends State<AppWrapper> with WindowListener {
             if (payload.containsKey('url')) {
               url = payload['url'];
               // Store the URL for WebView to use
-              Get.find<AppController>()
-                  .updateDeepLinksLink(url ?? 'item4gamer.com');
+              Get.find<AppController>().updateDeepLinksLink(url ?? 'g4a4.com');
               Get.find<AppController>().updateDeepLinks(true);
             }
 

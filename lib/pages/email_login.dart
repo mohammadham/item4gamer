@@ -1,15 +1,15 @@
 import 'dart:async';
 
-import 'package:Item4Gamer/browser/models/webview_model.dart';
-import 'package:Item4Gamer/browser/models/window_model.dart';
-import 'package:Item4Gamer/browser/webview_tab.dart';
-import 'package:Item4Gamer/main.dart';
-import 'package:Item4Gamer/pages/loading_service.dart';
-import 'package:Item4Gamer/services/dataStore_service.dart';
-import 'package:Item4Gamer/widgets/appWrapper.dart';
-import 'package:Item4Gamer/widgets/helpers.dart';
+import 'package:G4A4/browser/models/webview_model.dart';
+import 'package:G4A4/browser/models/window_model.dart';
+import 'package:G4A4/browser/webview_tab.dart';
+import 'package:G4A4/main.dart';
+import 'package:G4A4/pages/loading_service.dart';
+import 'package:G4A4/services/dataStore_service.dart';
+import 'package:G4A4/widgets/appWrapper.dart';
+import 'package:G4A4/widgets/helpers.dart';
 import 'package:flutter/material.dart';
-import 'package:Item4Gamer/config.dart';
+import 'package:G4A4/config.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get/get.dart';
@@ -52,7 +52,6 @@ class _EmailLoginPageState extends State<EmailLoginPage>
         showCustomSnackBar(context, 'enterValidEmail');
         return;
       }
-
 
       bool loginAction = await _service.loginWithEmailAction(email: email);
       setState(() {
@@ -199,13 +198,12 @@ class _EmailLoginPageState extends State<EmailLoginPage>
       });
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if(mounted)
+      if (mounted)
         setState(() {
           _isLoading = false;
         });
       LoadingService.hide(); // جایگزین child: buildLoadingScreen()
     });
-
   }
 
   @override
@@ -242,7 +240,8 @@ class _EmailLoginPageState extends State<EmailLoginPage>
         ? (screenHeight - MediaQuery.of(context).viewInsets.bottom)
         : screenHeight;
     final localizations = AppLocalizations.of(context);
-    final String languageCode = Localizations.localeOf(context).languageCode;    return WillPopScope(
+    final String languageCode = Localizations.localeOf(context).languageCode;
+    return WillPopScope(
       onWillPop: _handleBackButton,
       child: SafeArea(
         child: Scaffold(
@@ -251,7 +250,9 @@ class _EmailLoginPageState extends State<EmailLoginPage>
             padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: languageCode == 'fa' ? CrossAxisAlignment.end : CrossAxisAlignment.start, // شرط dynamic اضافه شده
+              crossAxisAlignment: languageCode == 'fa'
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start, // شرط dynamic اضافه شده
 
               children: [
                 const SizedBox(height: 30),
@@ -296,7 +297,9 @@ class _EmailLoginPageState extends State<EmailLoginPage>
                 Container(
                   width: screenWidth * 0.9,
                   child: Column(
-                    crossAxisAlignment: languageCode == 'fa' ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                    crossAxisAlignment: languageCode == 'fa'
+                        ? CrossAxisAlignment.end
+                        : CrossAxisAlignment.start,
                     children: [
                       Text(
                         localizations?.helloEmail ??
@@ -335,7 +338,9 @@ class _EmailLoginPageState extends State<EmailLoginPage>
                             height: 1.55,
                             color: Color(0xFF595959),
                           ),
-                          textAlign: languageCode == 'fa' ? TextAlign.right : TextAlign.left,
+                          textAlign: languageCode == 'fa'
+                              ? TextAlign.right
+                              : TextAlign.left,
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText:
@@ -379,16 +384,20 @@ class _EmailLoginPageState extends State<EmailLoginPage>
                           minimumSize:
                               Size(screenWidth * 0.9, screenHeight * 0.06),
                         ),
-                        child: _isSending ? CircularProgressIndicator() :Text(
-                          localizations?.continue_ ?? 'Continue',
-                          style: TextStyle(
-                            fontFamily: 'YekanBakh',
-                            fontSize: screenWidth * 0.04,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                          textAlign: languageCode == 'fa' ? TextAlign.right : TextAlign.left,
-                        ),
+                        child: _isSending
+                            ? CircularProgressIndicator()
+                            : Text(
+                                localizations?.continue_ ?? 'Continue',
+                                style: TextStyle(
+                                  fontFamily: 'YekanBakh',
+                                  fontSize: screenWidth * 0.04,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                                textAlign: languageCode == 'fa'
+                                    ? TextAlign.right
+                                    : TextAlign.left,
+                              ),
                       ),
                       KeyboardVisibilityBuilder(
                         builder: (context, isKeyboardVisible) {

@@ -28,7 +28,7 @@ xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
 
     <application
-        android:label="Item4Gamer"
+        android:label="G4A4"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:extractNativeLibs="true"
@@ -108,35 +108,35 @@ android:value="true" />
                 <!-- Replace with your actual domain -->
                
                 <data android:scheme="http"
-                    android:host="item4gamer.com"
+                    android:host="g4a4.com"
                     android:pathPattern=".*" />
                 <data android:scheme="https"
-                    android:host="item4gamer.com"
+                    android:host="g4a4.com"
                     android:pathPattern=".*" />
                 <data android:scheme="http"
-                    android:host="Item4Gamer.com"
+                    android:host="G4A4.com"
                     android:pathPattern=".*" />
                 <data android:scheme="https"
-                    android:host="Item4Gamer.com"
+                    android:host="G4a4.com"
                     android:pathPattern=".*" />
                 <data
-                    android:host="item4gamer.com"
+                    android:host="g4A4.com"
                     android:pathPattern=".*" />
                 <data
-                    android:host="Item4Gamer.com"
+                    android:host="g4a4.com"
                     android:pathPattern=".*" />
                 <data
-                    android:host="item4Gamer.com"
+                    android:host="G4a4.com"
                     android:pathPattern=".*" />
 
 
 
 
                 <data android:scheme="https"
-                    android:host="item4gamer.com"
+                    android:host="g4a4.com"
                     android:pathPattern="/.*" />
                 <data android:scheme="http"
-                    android:host="item4gamer.com"
+                    android:host="g4a4.com"
                     android:pathPattern="/.*" />
                 
                 <!-- Keep custom scheme -->
@@ -149,7 +149,7 @@ android:value="true" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <!-- Add optional android:host to distinguish your app
                     from others in case of conflicting scheme name -->
-                <data android:scheme="item4gamer" android:host="item4gamer.app" />
+                <data android:scheme="g4a4" android:host="g4a4.app" />
                 <!-- <data android:scheme="sample" /> -->
             </intent-filter>
 
@@ -169,10 +169,10 @@ android:value="true" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https"
-                    android:host="item4gamer.com"
+                    android:host="g4a4.com"
                     android:pathPattern=".*" />
                 <data android:scheme="http"
-                    android:host="item4gamer.com"
+                    android:host="g4a4.com"
                     android:pathPattern=".*" />
             </intent-filter>
 
@@ -233,7 +233,7 @@ android:value="true" />
 
         <provider
             android:name="com.google.firebase.provider.FirebaseInitProvider"
-            android:authorities="com.g4a4.item4gamer.firebaseinitprovider"
+            android:authorities="com.g4a4.g4a4.firebaseinitprovider"
             android:directBootAware="true"
             android:exported="false"
             android:initOrder="100" />
@@ -244,7 +244,7 @@ android:value="true" />
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
 
-                <category android:name="com.g4a4.item4gamer" />
+                <category android:name="com.g4a4.g4a4" />
             </intent-filter>
         </receiver>
         <!-- [END firebase_service] -->
