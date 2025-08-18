@@ -1,0 +1,33 @@
+# dart run flutter_native_splash:create --flutter_native_splash.yaml
+flutter_native_splash:
+  # Basic configuration
+  color: "#FFFFFF"
+  image: assets/images/logoLight.png
+
+  # Dark mode configuration (same as light)
+  color_dark: "#FFFFFF"
+  image_dark: assets/images/logoLight.png
+
+  # Android 12+ configuration
+  android_12:
+    # Use branding instead of image to avoid circle mask
+    # branding: assets/images/logoLight.png
+    icon_background_color: "#FFFFFF"
+    # branding_dark: assets/images/logoLight.png
+    icon_background_color_dark: "#FFFFFF"
+
+  # Platform enablement
+  android: false
+  ios: false
+  web: false
+  fullscreen: true
+
+  # Android specific
+  android_gravity: center
+  image_android: assets/images/logoLight.png
+  image_dark_android: assets/images/logoLight.png
+
+  # iOS specific
+  ios_content_mode: center
+  image_ios: assets/images/logoLight.png
+  image_dark_ios: assets/images/logoLight.png

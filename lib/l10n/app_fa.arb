@@ -1,0 +1,89 @@
+{
+  "@@locale": "fa",
+  "appTitle": "آیتم برای گیمر",
+  "loginError": "خطا در ورود",
+  "connectionError": "خطا در ارتباط",
+  "invalidCredentials": "مشخصات ورود نامعتبر",
+  "tryAgain": "لطفاً مجدداً تلاش کنید",
+  "backButtonWarning": "برای خروج دوباره دکمه برگشت را بزنید",
+  "guestLogin": "ورود به عنوان مهمان",
+  "hello": "سلام! لطفا برای ورود و یا ثبت‌نام، شماره موبایل خود را وارد نمایید",
+  "mobileNumber": "شماره موبایل",
+  "login": "ورود",
+  "enterValidPhone": "لطفا شماره تلفن معتبر وارد کنید",
+  "otpSendError": "خطا در ارسال کد تایید. لطفا دوباره تلاش کنید",
+  "serverConnectionError": "خطا در برقراری ارتباط با سرور. لطفا اینترنت را بررسی کنید",
+  "guestLoginError": "خطا در ورود مهمان",
+  "enterVerificationCode": "کد تایید را وارد نمایید",
+  "verificationCodeSent": "کد تایید برای شماره موبایل {phoneNumber} پیامک شد",
+  "@verificationCodeSent": {
+    "placeholders": {
+      "phoneNumber": {
+        "type": "String"
+      }
+    }
+  },
+  "enterCompleteCode": "لطفا کد تایید را کامل وارد کنید",
+  "incorrectCode": "کد تایید نادرست است",
+  "resendCode": "ارسال مجدد کد تایید ({time})",
+  "@resendCode": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "resendCodeTo": "ارسال مجدد کد تایید به ({phoneNumber})",
+  "@resendCodeTo": {
+    "placeholders": {
+      "phoneNumber": {
+        "type": "String"
+      }
+    }
+  },
+  "confirm": "تایید",
+  "editPhoneNumber": "اصلاح شماره تلفن",
+  "resendError": "خطا در ارسال ، مجددا تلاش کنید",
+  "helloEmail": "سلام! لطفا برای ورود و یا ثبت‌نام، ایمیل خود را وارد نمایید",
+  "emailAddress": "آدرس ایمیل",
+    "continue_": "ادامه",
+  "enterValidEmail": "لطفا ایمیل معتبر وارد کنید",
+  "enterPasswordForRegister": "برای ثبت نام رمز عبور خود را وارد کنید",
+  "enterPassword": "رمز عبور خود را وارد نمایید",
+  "password": "رمز عبور",
+  "confirmPassword": "تکرار رمز عبور",
+  "forgotPassword": "فراموشی رمز عبور",
+  "registerAndContinue": "ثبت‌نام و ادامه",
+  "enterPasswordAndConfirm": "لطفا رمز عبور و تکرار آن را وارد کنید",
+  "passwordsDoNotMatch": "رمز عبور و تکرار آن مطابقت ندارند",
+  "enterPassword8Chars": "لطفا رمز عبور  را کامل وارد کنید",
+  "passwordRequirements": "رمز عبور باید حداقل 8 کاراکتر باشد و شامل حروف کوچک، حروف بزرگ و اعداد باشد",
+  "incorrectEmailOrPassword": "رمز عبور یا ایمیل ن نادرست است",
+  "serverError": "خطا در ارتباط با سرور",
+  "registrationError": "خطا در ثبت نام",
+  "resetPasswordSent": "لینک بازیابی به ایمیل شما ارسال شد",
+  "resetPasswordError": "خطا در ارسال لینک بازیابی",
+  "change": "تغییر",
+  "checkInternet": "لطفا اینترنت خود را بررسی کنید!",
+  "yes": "بله",
+  "no": "خیر",
+  "notificationPermissionRequest": "{host} می‌خواهد اعلان‌ها را نمایش دهد",
+  "@notificationPermissionRequest": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deny": "رد کردن",
+  "allow": "اجازه دادن",
+  "webNotifications": "ناتیفیکیشن‌های وب",
+  "webViewControllerNotReady": "WebViewController هنوز آماده نیست",
+  "fileAccessPermission": "دسترسی به فایل",
+  "fileAccessPermissionMessage": "برای انتخاب فایل، لطفا دسترسی به حافظه را فعال کنید.",
+  "later": "بعدا",
+  "settings": "تنظیمات",
+  "username": "نام کاربری",
+  "cancel": "لغو",
+  "ok": "باشه"
+}

@@ -1,0 +1,90 @@
+{
+  "@@locale": "en",
+  "appTitle": "Item4Gamer",
+  "loginError": "Login error",
+  "connectionError": "Connection error",
+  "invalidCredentials": "Invalid credentials",
+  "tryAgain": "Please try again",
+  "backButtonWarning": "Press back again to exit",
+  "guestLogin": "Login as guest",
+  "hello": "Hello! Please enter your mobile number to login or register",
+  "mobileNumber": "Mobile number",
+  "login": "Login",
+  "enterValidPhone": "Please enter a valid phone number",
+  "otpSendError": "Error sending verification code. Please try again",
+  "serverConnectionError": "Error connecting to server. Please check your internet",
+  "guestLoginError": "Error in guest login",
+  "enterVerificationCode": "Enter verification code",
+  "verificationCodeSent": "Verification code sent to mobile number {phoneNumber}",
+  "@verificationCodeSent": {
+    "placeholders": {
+      "phoneNumber": {
+        "type": "String"
+      }
+    }
+  },
+  "enterCompleteCode": "Please enter the complete verification code",
+  "incorrectCode": "Verification code is incorrect",
+  "resendCode": "Resend verification code ({time})",
+  "@resendCode": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "resendCodeTo": "Resend verification code to ({phoneNumber})",
+  "@resendCodeTo": {
+    "placeholders": {
+      "phoneNumber": {
+        "type": "String"
+      }
+    }
+  },
+  "confirm": "Confirm",
+  "editPhoneNumber": "Edit phone number",
+  "resendError": "Error in sending, try again",
+  "helloEmail": "Hello! Please enter your email to login or register",
+  "emailAddress": "Email address",
+
+  "continue_": "Continue",
+  "enterValidEmail": "Please enter a valid email",
+  "enterPasswordForRegister": "Enter your password to register",
+  "enterPassword": "Enter your password",
+  "password": "Password",
+  "confirmPassword": "Confirm password",
+  "forgotPassword": "Forgot password",
+  "registerAndContinue": "Register and continue",
+  "enterPasswordAndConfirm": "Please enter password and confirm it",
+  "passwordsDoNotMatch": "Password and confirmation do not match",
+  "enterPassword8Chars": "Please enter complete password",
+  "passwordRequirements": "Password must be at least 8 characters and contain lowercase, uppercase and numbers",
+  "incorrectEmailOrPassword": "Email or password is incorrect",
+  "serverError": "Server connection error",
+  "registrationError": "Registration error",
+  "resetPasswordSent": "Reset link sent to your email",
+  "resetPasswordError": "Error sending reset link",
+  "change": "Change",
+  "checkInternet": "Please check your internet!",
+  "yes": "Yes",
+  "no": "No",
+  "notificationPermissionRequest": "{host} wants to show notifications",
+  "@notificationPermissionRequest": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "deny": "Deny",
+  "allow": "Allow",
+  "webNotifications": "Web Notifications",
+  "webViewControllerNotReady": "WebView controller is not ready yet",
+  "fileAccessPermission": "File Access Permission",
+  "fileAccessPermissionMessage": "To select a file, please enable storage access.",
+  "later": "Later",
+  "settings": "Settings",
+  "username": "Username",
+  "cancel": "Cancel",
+  "ok": "OK"
+}

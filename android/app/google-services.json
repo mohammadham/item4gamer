@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "139196646455",
+    "project_id": "g4a4-app",
+    "storage_bucket": "g4a4-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:139196646455:android:31c7f4dc172f38461a6bb2",
+        "android_client_info": {
+          "package_name": "com.g4a4.g4a4"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXdRYVSRui0M9BKu_WtIa_Lwb0QF-d6oU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:139196646455:android:f9868438956f5c151a6bb2",
+        "android_client_info": {
+          "package_name": "com.g4a4.item4gamer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXdRYVSRui0M9BKu_WtIa_Lwb0QF-d6oU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
