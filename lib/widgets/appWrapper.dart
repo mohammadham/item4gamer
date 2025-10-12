@@ -222,6 +222,16 @@ class _AppWrapperState extends State<AppWrapper> with WindowListener {
     // Show loading indicator until initialization is complete
     if (!_isInitialized) {
       return MaterialApp(
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          // Locale('en'), // English
+          Locale('fa'), // Farsi
+        ],
         theme: ThemeData(
           visualDensity: VisualDensity.adaptivePlatformDensity,
           textSelectionTheme: const TextSelectionThemeData(
@@ -442,7 +452,7 @@ class _AppWrapperState extends State<AppWrapper> with WindowListener {
                       GlobalCupertinoLocalizations.delegate,
                     ],
                     supportedLocales: const [
-                      Locale('en'), // English
+                      // Locale('en'), // English
                       Locale('fa'), // Farsi
                     ],
                     initialRoute: '/',

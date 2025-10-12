@@ -39,6 +39,7 @@ class _ErrorPageState extends State<ErrorPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       LoadingService.hide(); // جایگزین child: buildLoadingScreen()
     });
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
@@ -86,7 +87,7 @@ class _ErrorPageState extends State<ErrorPage> {
                 SizedBox(
                   width: double.infinity,
                   child: Text(
-                    '${AppLocalizations.of(context)!.checkInternet} ($errorCode)',
+                    '${localizations?.checkInternet} ($errorCode)',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 12,
@@ -149,7 +150,7 @@ class _ErrorPageState extends State<ErrorPage> {
                           child: CircularProgressIndicator(
                               color: Colors.white, strokeWidth: 2))
                       : Text(
-                          AppLocalizations.of(context)!.tryAgain,
+                          '${localizations?.tryAgain}',
                           style: const TextStyle(
                             fontSize: 14,
                             // 14 * MediaQuery.textScaleFactorOf(context),

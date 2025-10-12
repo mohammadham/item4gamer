@@ -240,7 +240,7 @@ class _EmailLoginPageState extends State<EmailLoginPage>
         ? (screenHeight - MediaQuery.of(context).viewInsets.bottom)
         : screenHeight;
     final localizations = AppLocalizations.of(context);
-    final String languageCode = Localizations.localeOf(context).languageCode;
+    final String languageCode = 'fa';
     return WillPopScope(
       onWillPop: _handleBackButton,
       child: SafeArea(

@@ -162,7 +162,7 @@ class _MyAppState extends State<MyApp> {
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: const [
-          Locale('en'), // English
+          // Locale('en'), // English
           Locale('fa'), // Farsi
         ],
         onGenerateRoute: RouteGenerator.generateRoute,
@@ -175,7 +175,7 @@ class _MyAppState extends State<MyApp> {
             ),
             child: Directionality(
               textDirection:
-                  Localizations.localeOf(context).languageCode == 'fa'
+                  true
                       ? TextDirection.rtl
                       : TextDirection.ltr,
               child: _buildMainContent(context), // ساختار بدون Stack حفظ شده
