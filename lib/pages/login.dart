@@ -20,6 +20,7 @@ import 'login_confirmation.dart';
 import 'email_login.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:Item4Gamer/widgets/privacy_policy_dialog.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -61,6 +62,13 @@ class _LoginPageState extends State<LoginPage>
   Future<void> _login() async {
     if (_isLoading) return;
 
+    // Check if privacy policy is accepted first
+    final privacyAccepted = await _showPrivacyPolicyIfNeeded();
+    if (!privacyAccepted) {
+      // User did not accept privacy policy
+      return;
+    }
+
     setState(() {
       // _isLoading = true;
       _isSending = true;
@@ -71,6 +79,9 @@ class _LoginPageState extends State<LoginPage>
       if (phoneNumber.length < 10) {
         // throw Exception('لطفا شماره تلفن معتبر وارد کنید');
         showCustomSnackBar(context, 'enterValidPhone');
+        setState(() {
+          _isSending = false;
+        });
         return;
       }
       var isSuccess;
@@ -248,6 +259,44 @@ class _LoginPageState extends State<LoginPage>
     });
   }
 
+  Future<bool> _checkPrivacyAccepted() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('privacy_policy_accepted') ?? false;
+  }
+
+  Future<bool> _showPrivacyPolicyIfNeeded() async {
+    final hasAccepted = await _checkPrivacyAccepted();
+
+    if (!hasAccepted && mounted) {
+      final accepted = await PrivacyPolicyDialog.show(
+        context,
+        onAccept: () async {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('privacy_policy_accepted', true);
+        },
+        showAcceptButton: true,
+      );
+      return accepted ?? false;
+    }
+
+    return hasAccepted;
+  }
+
+  Future<void> _showPrivacyPolicyForView() async {
+    final hasAccepted = await _checkPrivacyAccepted();
+
+    await PrivacyPolicyDialog.show(
+      context,
+      onAccept: hasAccepted
+          ? null
+          : () async {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool('privacy_policy_accepted', true);
+            },
+      showAcceptButton: !hasAccepted,
+    );
+  }
+
   @override
   void dispose() {
     _phoneController.dispose();
@@ -395,6 +444,13 @@ class _LoginPageState extends State<LoginPage>
                         child: TextField(
                           controller: _phoneController,
                           focusNode: _focusNode,
+                          onTap: () async {
+                            // Show privacy policy when user taps on field if not accepted
+                            final hasAccepted = await _checkPrivacyAccepted();
+                            if (!hasAccepted) {
+                              await _showPrivacyPolicyIfNeeded();
+                            }
+                          },
                           style: const TextStyle(
                             fontFamily: 'YekanBakh',
                             fontSize: 14,
@@ -433,6 +489,32 @@ class _LoginPageState extends State<LoginPage>
                           textDirection: _phoneController.text.isNotEmpty
                               ? TextDirection.ltr
                               : TextDirection.rtl,
+                        ),
+                      ),
+                      SizedBox(height: screenHeight * 0.02),
+                      // Privacy Policy Link
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: _showPrivacyPolicyForView,
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: const Size(0, 0),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: Text(
+                            AppLocalizations.of(context)!.privacyPolicyTitle ??
+                                'Privacy Policy',
+                            style: TextStyle(
+                              fontFamily: 'YekanBakh',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF0071DF),
+                              decoration: TextDecoration.underline,
+                              decorationColor: Color(0xFF0071DF),
+                            ),
+                            textAlign: TextAlign.right,
+                          ),
                         ),
                       ),
                       SizedBox(height: screenHeight * 0.02),

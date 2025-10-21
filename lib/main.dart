@@ -35,6 +35,8 @@ import 'browser/models/webview_model.dart';
 import 'browser/models/window_model.dart';
 import 'browser/util.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -214,14 +216,23 @@ class _SplashAppState extends State<SplashApp> {
           ),
         ),
         home: Scaffold(
-
-          body:  SplashScreen(
+          body: SplashScreen(
             typeOfSplashScreen: LOGO_MOTION_TYPE,
             splashTimeout: LOGO_MOTION_TIME,
             exitInEnd: true,
             returnRoutePath: '/sphome',
           ),
         ),
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en'), // English
+          Locale('fa'), // Farsi
+        ],
         routes: {'/sphome': (context) => AppWrapper()},
       ),
     );

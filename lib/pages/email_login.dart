@@ -19,6 +19,8 @@ import '../services/auth_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'email_login_confirmation.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:Item4Gamer/widgets/privacy_policy_dialog.dart';
 
 class EmailLoginPage extends StatefulWidget {
   final String email;
@@ -39,8 +41,55 @@ class _EmailLoginPageState extends State<EmailLoginPage>
   int _backButtonCount = 0;
   Timer? _backButtonTimer;
 
+  // تابع جدید: چک کردن وضعیت پذیرش privacy
+  Future<bool> _checkPrivacyAccepted() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('privacy_policy_accepted') ?? false;
+  }
+
+  // تابع جدید: نمایش دیالوگ privacy اگر لازم باشد
+  Future<bool> _showPrivacyPolicyIfNeeded() async {
+    final hasAccepted = await _checkPrivacyAccepted();
+
+    if (!hasAccepted && mounted) {
+      final accepted = await PrivacyPolicyDialog.show(
+        context,
+        onAccept: () async {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('privacy_policy_accepted', true);
+        },
+        showAcceptButton: true,
+      );
+      return accepted ?? false;
+    }
+
+    return hasAccepted;
+  }
+
+  // تابع جدید: نمایش دیالوگ privacy برای مشاهده (بدون دکمه accept اگر قبلاً پذیرفته شده)
+  Future<void> _showPrivacyPolicyForView() async {
+    final hasAccepted = await _checkPrivacyAccepted();
+
+    await PrivacyPolicyDialog.show(
+      context,
+      onAccept: hasAccepted
+          ? null
+          : () async {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool('privacy_policy_accepted', true);
+            },
+      showAcceptButton: !hasAccepted,
+    );
+  }
+
   Future<void> _login() async {
     if (_isLoading) return;
+
+    // چک جدید: اگر privacy پذیرفته نشده، دیالوگ نشان دهید و اگر کاربر نپذیرفت، return کنید
+    final privacyAccepted = await _showPrivacyPolicyIfNeeded();
+    if (!privacyAccepted) {
+      return;
+    }
 
     setState(() {
       _isSending = true;
@@ -52,7 +101,6 @@ class _EmailLoginPageState extends State<EmailLoginPage>
         showCustomSnackBar(context, 'enterValidEmail');
         return;
       }
-
 
       bool loginAction = await _service.loginWithEmailAction(email: email);
       setState(() {
@@ -199,13 +247,12 @@ class _EmailLoginPageState extends State<EmailLoginPage>
       });
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if(mounted)
+      if (mounted)
         setState(() {
           _isLoading = false;
         });
       LoadingService.hide(); // جایگزین child: buildLoadingScreen()
     });
-
   }
 
   @override
@@ -242,7 +289,9 @@ class _EmailLoginPageState extends State<EmailLoginPage>
         ? (screenHeight - MediaQuery.of(context).viewInsets.bottom)
         : screenHeight;
     final localizations = AppLocalizations.of(context);
-    final String languageCode = Localizations.localeOf(context).languageCode;    return WillPopScope(
+    final String languageCode = Localizations.localeOf(context).languageCode;
+
+    return WillPopScope(
       onWillPop: _handleBackButton,
       child: SafeArea(
         child: Scaffold(
@@ -251,8 +300,9 @@ class _EmailLoginPageState extends State<EmailLoginPage>
             padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: languageCode == 'fa' ? CrossAxisAlignment.end : CrossAxisAlignment.start, // شرط dynamic اضافه شده
-
+              crossAxisAlignment: languageCode == 'fa'
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 30),
                 Align(
@@ -296,7 +346,9 @@ class _EmailLoginPageState extends State<EmailLoginPage>
                 Container(
                   width: screenWidth * 0.9,
                   child: Column(
-                    crossAxisAlignment: languageCode == 'fa' ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                    crossAxisAlignment: languageCode == 'fa'
+                        ? CrossAxisAlignment.end
+                        : CrossAxisAlignment.start,
                     children: [
                       Text(
                         localizations?.helloEmail ??
@@ -335,7 +387,9 @@ class _EmailLoginPageState extends State<EmailLoginPage>
                             height: 1.55,
                             color: Color(0xFF595959),
                           ),
-                          textAlign: languageCode == 'fa' ? TextAlign.right : TextAlign.left,
+                          textAlign: languageCode == 'fa'
+                              ? TextAlign.right
+                              : TextAlign.left,
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText:
@@ -357,9 +411,46 @@ class _EmailLoginPageState extends State<EmailLoginPage>
                               _isSending ? null : _login();
                             }
                           },
+                          onTap: () async {
+                            // اضافه شده: نمایش دیالوگ اگر privacy پذیرفته نشده
+                            final hasAccepted = await _checkPrivacyAccepted();
+                            if (!hasAccepted) {
+                              await _showPrivacyPolicyIfNeeded();
+                            }
+                          },
                           textDirection: _emailController.text.isNotEmpty
                               ? TextDirection.ltr
                               : TextDirection.rtl,
+                        ),
+                      ),
+                      SizedBox(height: screenHeight * 0.02),
+                      // اضافه شده: لینک Privacy Policy
+                      Align(
+                        alignment: languageCode == 'fa'
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: TextButton(
+                          onPressed: _showPrivacyPolicyForView,
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: const Size(0, 0),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: Text(
+                            localizations?.privacyPolicyTitle ??
+                                'Privacy Policy', // این را هم می‌توانید localize کنید (در مرحله ۲)
+                            style: TextStyle(
+                              fontFamily: 'YekanBakh',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF0071DF),
+                              decoration: TextDecoration.underline,
+                              decorationColor: Color(0xFF0071DF),
+                            ),
+                            textAlign: languageCode == 'fa'
+                                ? TextAlign.right
+                                : TextAlign.left,
+                          ),
                         ),
                       ),
                       SizedBox(height: screenHeight * 0.02),
@@ -379,16 +470,20 @@ class _EmailLoginPageState extends State<EmailLoginPage>
                           minimumSize:
                               Size(screenWidth * 0.9, screenHeight * 0.06),
                         ),
-                        child: _isSending ? CircularProgressIndicator() :Text(
-                          localizations?.continue_ ?? 'Continue',
-                          style: TextStyle(
-                            fontFamily: 'YekanBakh',
-                            fontSize: screenWidth * 0.04,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                          textAlign: languageCode == 'fa' ? TextAlign.right : TextAlign.left,
-                        ),
+                        child: _isSending
+                            ? CircularProgressIndicator()
+                            : Text(
+                                localizations?.continue_ ?? 'Continue',
+                                style: TextStyle(
+                                  fontFamily: 'YekanBakh',
+                                  fontSize: screenWidth * 0.04,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                                textAlign: languageCode == 'fa'
+                                    ? TextAlign.right
+                                    : TextAlign.left,
+                              ),
                       ),
                       KeyboardVisibilityBuilder(
                         builder: (context, isKeyboardVisible) {
