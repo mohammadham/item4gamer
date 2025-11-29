@@ -135,6 +135,10 @@ flutter:
   assets:
     - assets/js/web_notification.js
     - assets/js/select-customizer.js
+    - assets/js/shadow_dom_interceptor.js
+    - assets/js/blob_url_helper.js
+    - assets/js/ila_chat_helper.js
+    - assets/js/media_display_fixer.js
     - assets/js/
     - assets/images/
     - assets/

@@ -57,9 +57,9 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
   bool _isWindowClosed = false;
   final FocusNode _focusNode = FocusNode();
   final TextEditingController _httpAuthUsernameController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController _httpAuthPasswordController =
-      TextEditingController();
+  TextEditingController();
 
   // From CustomWebView
   bool isLoading = true;
@@ -107,7 +107,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
           if ([TargetPlatform.iOS].contains(defaultTargetPlatform)) {
             _webViewController?.loadUrl(
                 urlRequest:
-                    URLRequest(url: await _webViewController?.getUrl()));
+                URLRequest(url: await _webViewController?.getUrl()));
           } else {
             _webViewController?.reload();
           }
@@ -127,7 +127,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
         systemNavigationBarColor: SYSTEM_NAVIGATION_BAR_COLOR,
         // statusBarIconBrightness: STATUS_BAR_ICON_BRIGHTNESS,
         systemNavigationBarIconBrightness:
-            SYSTEM_NAVIGATION_BAR_ICON_BRIGHTNESS,
+        SYSTEM_NAVIGATION_BAR_ICON_BRIGHTNESS,
       ),
     );
     if (isWhiteBlackList) {
@@ -156,13 +156,13 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
     // Listen for deep link changes
     _deepLinkWorker =
         ever(Get.find<AppController>().deepLinksLink, (String newLink) {
-      if (newLink.isNotEmpty && newLink != currentUrl) {
-        print("Deep link changed to: $newLink");
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _handleDeepLinkChange(newLink);
+          if (newLink.isNotEmpty && newLink != currentUrl) {
+            print("Deep link changed to: $newLink");
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _handleDeepLinkChange(newLink);
+            });
+          }
         });
-      }
-    });
 
     // Register callback with DeepLinkService
     DeepLinkService().onDeepLinkReceived = (String link) {
@@ -215,33 +215,33 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
 
     final host = url.host;
     final savedPermission =
-        await WebNotificationPermissionDb.getPermission(host);
+    await WebNotificationPermissionDb.getPermission(host);
     if (savedPermission != null) {
       return WebNotificationPermission.values
           .firstWhere((e) => e.name.toLowerCase() == savedPermission);
     }
 
     final permission = await showDialog<WebNotificationPermission>(
-          context: context,
-          builder: (context) {
-            final localizations = AppLocalizations.of(context)!;
-            return AlertDialog(
-              title: Text(localizations.notificationPermissionRequest(host)),
-              actions: [
-                ElevatedButton(
-                  onPressed: () =>
-                      Navigator.pop(context, WebNotificationPermission.DENIED),
-                  child: Text(localizations.deny),
-                ),
-                ElevatedButton(
-                  onPressed: () =>
-                      Navigator.pop(context, WebNotificationPermission.GRANTED),
-                  child: Text(localizations.allow),
-                ),
-              ],
-            );
-          },
-        ) ??
+      context: context,
+      builder: (context) {
+        final localizations = AppLocalizations.of(context)!;
+        return AlertDialog(
+          title: Text(localizations.notificationPermissionRequest(host)),
+          actions: [
+            ElevatedButton(
+              onPressed: () =>
+                  Navigator.pop(context, WebNotificationPermission.DENIED),
+              child: Text(localizations.deny),
+            ),
+            ElevatedButton(
+              onPressed: () =>
+                  Navigator.pop(context, WebNotificationPermission.GRANTED),
+              child: Text(localizations.allow),
+            ),
+          ],
+        );
+      },
+    ) ??
         WebNotificationPermission.DENIED;
 
     await WebNotificationPermissionDb.savePermission(host, permission);
@@ -251,14 +251,14 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
   void _onShowNotification(WebNotification notification) async {
     webNotificationController?.notifications[notification.id] = notification;
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
+    AndroidNotificationDetails(
       'web_notification_channel',
       'Web Notifications',
       importance: Importance.max,
       priority: Priority.high,
     );
     const DarwinNotificationDetails iOSPlatformChannelSpecifics =
-        DarwinNotificationDetails();
+    DarwinNotificationDetails();
     const NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: androidPlatformChannelSpecifics,
       iOS: iOSPlatformChannelSpecifics,
@@ -319,21 +319,62 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
     // Polyfill script
     try {
       String webNotificationJs =
-          await rootBundle.loadString('assets/js/web_notification.js');
+      await rootBundle.loadString('assets/js/web_notification.js');
       final jsNotificationApiUserScript = UserScript(
         source: webNotificationJs,
         injectionTime: UserScriptInjectionTime.AT_DOCUMENT_END,
       );
       userScripts.add(jsNotificationApiUserScript);
+
       String jsContent =
-          await rootBundle.loadString('assets/js/select-customizer.js');
+      await rootBundle.loadString('assets/js/select-customizer.js');
       final jsSelectCustomizerUserScript = UserScript(
         source: jsContent,
         injectionTime: UserScriptInjectionTime.AT_DOCUMENT_END,
       );
       userScripts.add(jsSelectCustomizerUserScript);
+
+      // بارگذاری Blob URL Helper (باید قبل از Shadow DOM Interceptor باشد)
+      String blobUrlHelperJs =
+      await rootBundle.loadString('assets/js/blob_url_helper.js');
+      final jsBlobUrlHelperUserScript = UserScript(
+        source: blobUrlHelperJs,
+        injectionTime: UserScriptInjectionTime.AT_DOCUMENT_START,
+      );
+      userScripts.add(jsBlobUrlHelperUserScript);
+      print('Blob URL Helper loaded successfully');
+
+      // بارگذاری Shadow DOM Interceptor
+      String shadowDomJs =
+      await rootBundle.loadString('assets/js/shadow_dom_interceptor.js');
+      final jsShadowDomUserScript = UserScript(
+        source: shadowDomJs,
+        injectionTime: UserScriptInjectionTime.AT_DOCUMENT_END,
+      );
+      userScripts.add(jsShadowDomUserScript);
+      print('Shadow DOM Interceptor loaded successfully');
+
+      // بارگذاری ILA Chat Helper
+      String ilaChatHelperJs =
+      await rootBundle.loadString('assets/js/ila_chat_helper.js');
+      final jsIlaChatHelperUserScript = UserScript(
+        source: ilaChatHelperJs,
+        injectionTime: UserScriptInjectionTime.AT_DOCUMENT_END,
+      );
+      userScripts.add(jsIlaChatHelperUserScript);
+      print('ILA Chat Helper loaded successfully');
+
+      // بارگذاری Media Display Fixer
+      String mediaDisplayFixerJs =
+      await rootBundle.loadString('assets/js/media_display_fixer.js');
+      final jsMediaDisplayFixerUserScript = UserScript(
+        source: mediaDisplayFixerJs,
+        injectionTime: UserScriptInjectionTime.AT_DOCUMENT_START,
+      );
+      userScripts.add(jsMediaDisplayFixerUserScript);
+      print('Media Display Fixer loaded successfully');
     } catch (e) {
-      print('Error loading web_notification.js: $e');
+      print('Error loading user scripts: $e');
     }
 
     // Load saved permissions
@@ -375,7 +416,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
             'JavaScript handler: Notification.show called with args: $arguments');
         if (_webViewController != null) {
           final notification =
-              WebNotification.fromJson(arguments[0], _webViewController!);
+          WebNotification.fromJson(arguments[0], _webViewController!);
           _onShowNotification(notification);
         }
       },
@@ -390,8 +431,120 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
         _onCloseNotification(notificationId);
       },
     );
+
+    // Handler برای Shadow DOM Media Detection
+    _webViewController?.addJavaScriptHandler(
+      handlerName: 'shadowMediaDetected',
+      callback: (arguments) {
+        print('Shadow DOM Media detected: $arguments');
+        _handleShadowDomMedia(arguments[0]);
+      },
+    );
+
+    // Handlers برای Blob URL Helper
+    _webViewController?.addJavaScriptHandler(
+      handlerName: 'blobUrlCreated',
+      callback: (arguments) {
+        print('Blob URL created: $arguments');
+      },
+    );
+
+    _webViewController?.addJavaScriptHandler(
+      handlerName: 'blobUrlRevoked',
+      callback: (arguments) {
+        print('Blob URL revoked: $arguments');
+      },
+    );
+
+    _webViewController?.addJavaScriptHandler(
+      handlerName: 'blobResponseDetected',
+      callback: (arguments) {
+        print('Blob response detected: $arguments');
+      },
+    );
+
+    _webViewController?.addJavaScriptHandler(
+      handlerName: 'mediaFetchDetected',
+      callback: (arguments) {
+        print('Media fetch detected: $arguments');
+      },
+    );
+
+    // Handlers برای ILA Chat Helper
+    _webViewController?.addJavaScriptHandler(
+      handlerName: 'ilaAudioPlayClicked',
+      callback: (arguments) {
+        print('ILA Chat audio play clicked: $arguments');
+      },
+    );
+
+    _webViewController?.addJavaScriptHandler(
+      handlerName: 'ilaImageClicked',
+      callback: (arguments) {
+        print('ILA Chat image clicked: $arguments');
+      },
+    );
+
+    _webViewController?.addJavaScriptHandler(
+      handlerName: 'shadowAudioInteraction',
+      callback: (arguments) {
+        print('Shadow DOM audio interaction: $arguments');
+      },
+    );
+
+    _webViewController?.addJavaScriptHandler(
+      handlerName: 'shadowImageInteraction',
+      callback: (arguments) {
+        print('Shadow DOM image interaction: $arguments');
+      },
+    );
+
     print('JavaScript handlers added successfully');
     return true;
+  }
+
+  // متد جدید برای مدیریت media های Shadow DOM
+  void _handleShadowDomMedia(Map<String, dynamic> mediaInfo) {
+    try {
+      final type = mediaInfo['type'] as String?;
+      final url = mediaInfo['url'] as String?;
+      final base64 = mediaInfo['base64'] as String?;
+
+      print('Handling Shadow DOM media: type=$type, url=$url, hasBase64=${base64 != null}');
+
+      if (type == null || url == null) {
+        print('Invalid media info received');
+        return;
+      }
+
+      // اینجا می‌توانید منطق خاص خود را اضافه کنید
+      // برای مثال: ذخیره، نمایش، یا پردازش فایل
+
+      // برای الان فقط log می‌کنیم
+      switch (type) {
+        case 'audio':
+        case 'audio_loaded':
+          print('Audio media detected in Shadow DOM: $url');
+          // فایل صوتی در WebView به درستی نمایش داده می‌شود
+          break;
+        case 'image':
+        case 'image_loaded':
+          print('Image media detected in Shadow DOM: $url');
+          // تصویر در WebView به درستی نمایش داده می‌شود
+          break;
+        case 'video':
+          print('Video media detected in Shadow DOM: $url');
+          // ویدیو در WebView به درستی نمایش داده می‌شود
+          break;
+        default:
+          print('Unknown media type: $type');
+      }
+
+      // اگر نیاز به ذخیره یا پردازش خاص دارید، می‌توانید اینجا اضافه کنید
+
+    } catch (e) {
+      print('Error handling Shadow DOM media: $e');
+    }
   }
 
 //webnotification
@@ -640,7 +793,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
             var headers = navigationAction.request.headers;
             headers ??= {};
             var hasRefererHeader =
-                headers.keys.map((k) => k.toLowerCase()).contains('referer');
+            headers.keys.map((k) => k.toLowerCase()).contains('referer');
             if (!hasRefererHeader) {
               // use the full current URL (unsafe-url) or
               // create your own URL structure here based on a Referrer-Policy.
@@ -654,8 +807,8 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
       }
     }
     if (!uri.toString().contains(WebUri(URL).toString()) &&
-            ((navigationAction.isRedirect ?? false) ||
-                !navigationAction.isForMainFrame) ||
+        ((navigationAction.isRedirect ?? false) ||
+            !navigationAction.isForMainFrame) ||
         !uri.toString().contains(WebUri(URL).toString()) &&
             navigationAction.isForMainFrame) {
       if (await canLaunchUrl(uri)) {
@@ -688,7 +841,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
     try {
       if (Platform.isIOS || Platform.isMacOS) {
         isLoggedIn =
-            await CookieManager.instance().getAllCookies().then((cookies) {
+        await CookieManager.instance().getAllCookies().then((cookies) {
           bool result = false;
           print(cookies);
           if (cookies.isNotEmpty) {
@@ -826,11 +979,11 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
     }
     _webViewController!
         .stopLoading()
-        // .then((_) {
-        // if (widget.webViewModel.tabIndex != null) {
-        //   windowModel.closeTab(windowModel.getCurrentTabIndex());
-        // }
-        // })
+    // .then((_) {
+    // if (widget.webViewModel.tabIndex != null) {
+    //   windowModel.closeTab(windowModel.getCurrentTabIndex());
+    // }
+    // })
         .then((_) {
       // windowModel.closeAllTabs();
 
@@ -856,7 +1009,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
             isNotFirstLoading = true;
             Future.delayed(
                 const Duration(seconds: 1),
-                () => mounted
+                    () => mounted
                     ? setState(() => _showSplashOverlay = false)
                     : null);
           });
@@ -1003,7 +1156,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
         backIsClicked = true;
       });
       final copyBackForwardList =
-          await _webViewController!.getCopyBackForwardList();
+      await _webViewController!.getCopyBackForwardList();
       // ابتدا URL صفحه قبلی را بررسی کنیم
       final previousUrl = ReturnUrl;
       if (previousUrl.isNotEmpty) {
@@ -1012,11 +1165,11 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
 
         // بررسی آدرس‌های خاص
         if ((((previousUrl.contains('/my-account') ||
-                        previousUrl.contains('/checkout/pay-out') ||
-                        previousUrl.contains('/profile')) &&
-                    authToken.isEmpty) ||
-                UrlListManager.getUrlType(previousUrl.toString()) ==
-                    'PAYMENT') &&
+            previousUrl.contains('/checkout/pay-out') ||
+            previousUrl.contains('/profile')) &&
+            authToken.isEmpty) ||
+            UrlListManager.getUrlType(previousUrl.toString()) ==
+                'PAYMENT') &&
             previousUrl != currentUrl) {
           if (UrlListManager.getUrlType(previousUrl.toString()) == 'PAYMENT') {
             // برگشت به URL اصلی
@@ -1093,9 +1246,9 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
           }
           // بررسی آدرس‌های خاص
           if (((uri.path.contains('/my-account') ||
-                      uri.path.contains('/checkout/pay-out') ||
-                      uri.path.contains('/profile')) &&
-                  authToken.isEmpty) ||
+              uri.path.contains('/checkout/pay-out') ||
+              uri.path.contains('/profile')) &&
+              authToken.isEmpty) ||
               UrlListManager.getUrlType(uri.toString()) == 'PAYMENT') {
             if (UrlListManager.getUrlType(uri.toString()) == 'PAYMENT') {
               // برگشت به URL اصلی
@@ -1145,15 +1298,15 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
   void _startConnectivityCheck() {
     _connectivityTimer =
         Timer.periodic(const Duration(seconds: 30), (timer) async {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      _hasInternet = await ConnectivityService().checkInternetConnectionV();
-      if (!_hasInternet && mounted && !isError) {
-        showCustomSnackBar(context, 'checkInternet');
-      }
-    });
+          if (!mounted) {
+            timer.cancel();
+            return;
+          }
+          _hasInternet = await ConnectivityService().checkInternetConnectionV();
+          if (!_hasInternet && mounted && !isError) {
+            showCustomSnackBar(context, 'checkInternet');
+          }
+        });
   }
 
   // From CustomWebView: File picker
@@ -1269,7 +1422,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Obx(() {
       bool isBrowserVisible =
-          Get.find<AppController>().getIsBrowserVisibleReturn();
+      Get.find<AppController>().getIsBrowserVisibleReturn();
 
       if (isBrowserVisible) {
         if (!Get.find<AppController>().getLoginResponseCookiesSet() &&
@@ -1310,182 +1463,182 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
                 builder: (context, constraints) {
                   return KeyboardVisibilityBuilder(
                       builder: (context, isKeyboardVisible) {
-                    final bottomInset =
-                        MediaQuery.of(context).viewInsets.bottom;
-                    return AnimatedPadding(
-                      duration: Duration(
-                          milliseconds: isKeyboardVisible
-                              ? 5
-                              : 5), // Adjust for smoothness
-                      curve: Curves.easeOut,
-                      padding: EdgeInsets.only(
-                          bottom: isKeyboardVisible ? bottomInset : 0),
-                      child: Column(
-                        children: [
-                          if (showUrlBar)
-                            Container(
-                              margin: EdgeInsets.symmetric(
-                                  horizontal: 15, vertical: 15),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                borderRadius: BorderRadius.circular(24),
-                                border: Border.all(color: Colors.grey[300]!),
-                                boxShadow: [
-                                  BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 2,
-                                      offset: Offset(0, 1))
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  InkWell(
-                                    onTap: () async {
-                                      // if (mounted) {
-                                      //   setState(() => showUrlBar = false);
-                                      // }
-                                      if (await _webViewController!
-                                          .canGoBack()) {
-                                        if (ReturnUrl.isNotEmpty &&
-                                            (!ReturnUrl.contains(
+                        final bottomInset =
+                            MediaQuery.of(context).viewInsets.bottom;
+                        return AnimatedPadding(
+                          duration: Duration(
+                              milliseconds: isKeyboardVisible
+                                  ? 5
+                                  : 5), // Adjust for smoothness
+                          curve: Curves.easeOut,
+                          padding: EdgeInsets.only(
+                              bottom: isKeyboardVisible ? bottomInset : 0),
+                          child: Column(
+                            children: [
+                              if (showUrlBar)
+                                Container(
+                                  margin: EdgeInsets.symmetric(
+                                      horizontal: 15, vertical: 15),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    borderRadius: BorderRadius.circular(24),
+                                    border: Border.all(color: Colors.grey[300]!),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.black.withOpacity(0.05),
+                                          blurRadius: 2,
+                                          offset: Offset(0, 1))
+                                    ],
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      InkWell(
+                                        onTap: () async {
+                                          // if (mounted) {
+                                          //   setState(() => showUrlBar = false);
+                                          // }
+                                          if (await _webViewController!
+                                              .canGoBack()) {
+                                            if (ReturnUrl.isNotEmpty &&
+                                                (!ReturnUrl.contains(
                                                     'about:blank') &&
-                                                !ReturnUrl.contains(
-                                                    'pay-order') &&
-                                                UrlListManager.getUrlType(
+                                                    !ReturnUrl.contains(
+                                                        'pay-order') &&
+                                                    UrlListManager.getUrlType(
                                                         ReturnUrl) !=
-                                                    'PAYMENT')) {
-                                          _webViewController!.goBack();
-                                        } else {
-                                          await _handleBackButton();
-                                        }
-                                      } else {
-                                        await _webViewController!.loadUrl(
-                                            urlRequest: URLRequest(
-                                                url: WebUri(
-                                                    URL + CLOSE_NAV_BAR_URL)));
-                                      }
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.all(4),
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(12),
+                                                        'PAYMENT')) {
+                                              _webViewController!.goBack();
+                                            } else {
+                                              await _handleBackButton();
+                                            }
+                                          } else {
+                                            await _webViewController!.loadUrl(
+                                                urlRequest: URLRequest(
+                                                    url: WebUri(
+                                                        URL + CLOSE_NAV_BAR_URL)));
+                                          }
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.all(4),
+                                          decoration: BoxDecoration(
+                                            color: Colors.blue.withOpacity(0.1),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Icon(Icons.arrow_back,
+                                              size: 18, color: Colors.blue),
+                                        ),
                                       ),
-                                      child: Icon(Icons.arrow_back,
-                                          size: 18, color: Colors.blue),
-                                    ),
+                                      const Icon(Icons.lock,
+                                          size: 16, color: Colors.green),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          currentUrl,
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey[800],
+                                              fontWeight: FontWeight.w400),
+                                          textAlign: TextAlign.left,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Icon(Icons.search,
+                                          size: 18, color: Colors.grey[600]),
+                                      // InkWell(
+                                      //   onTap: () async {
+                                      //     // if (await _webViewController!.canGoBack()) {
+                                      //     //   _webViewController!.loadUrl(urlRequest: URLRequest(url: WebUri(URL+CLOSE_NAV_BAR_URL)));
+                                      //     // }else{
+                                      //     if (mounted) {
+                                      //       setState(() => showUrlBar = false);
+                                      //     }
+                                      //     _webViewController!
+                                      //         .loadUrl(
+                                      //             urlRequest: URLRequest(
+                                      //                 url: WebUri(URL +
+                                      //                     RETURN_NAV_BAR_URL)))
+                                      //         .then((_) {});
+                                      //     // }
+                                      //   },
+                                      //   child: Container(
+                                      //     padding: EdgeInsets.all(4),
+                                      //     decoration: BoxDecoration(
+                                      //       color: Colors.blue.withOpacity(0.1),
+                                      //       borderRadius: BorderRadius.circular(12),
+                                      //     ),
+                                      //     child: Icon(Icons.close_sharp,
+                                      //         size: 18, color: Colors.red[600]),
+                                      //   ),
+                                      // ),
+                                    ],
                                   ),
-                                  const Icon(Icons.lock,
-                                      size: 16, color: Colors.green),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      currentUrl,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey[800],
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.left,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Icon(Icons.search,
-                                      size: 18, color: Colors.grey[600]),
-                                  // InkWell(
-                                  //   onTap: () async {
-                                  //     // if (await _webViewController!.canGoBack()) {
-                                  //     //   _webViewController!.loadUrl(urlRequest: URLRequest(url: WebUri(URL+CLOSE_NAV_BAR_URL)));
-                                  //     // }else{
-                                  //     if (mounted) {
-                                  //       setState(() => showUrlBar = false);
-                                  //     }
-                                  //     _webViewController!
-                                  //         .loadUrl(
-                                  //             urlRequest: URLRequest(
-                                  //                 url: WebUri(URL +
-                                  //                     RETURN_NAV_BAR_URL)))
-                                  //         .then((_) {});
-                                  //     // }
-                                  //   },
-                                  //   child: Container(
-                                  //     padding: EdgeInsets.all(4),
-                                  //     decoration: BoxDecoration(
-                                  //       color: Colors.blue.withOpacity(0.1),
-                                  //       borderRadius: BorderRadius.circular(12),
-                                  //     ),
-                                  //     child: Icon(Icons.close_sharp,
-                                  //         size: 18, color: Colors.red[600]),
-                                  //   ),
-                                  // ),
-                                ],
-                              ),
-                            ),
-                          Expanded(
-                            child: Stack(
-                              children: [
-                                Focus(
-                                  autofocus: true,
-                                  focusNode: _focusNode,
-                                  child: _buildWebView(),
                                 ),
-                                if (isLoading && !(isNotFirstLoading))
-                                  AnimatedOpacity(
-                                    opacity: _showSplashOverlay ? 1.0 : 1.0,
-                                    duration: const Duration(seconds: 2),
-                                    child: Builder(
-                                      // برای دسترسی به context
-                                      builder: (context) {
-                                        WidgetsBinding.instance
-                                            .addPostFrameCallback((_) {
-                                          LoadingService.show(
-                                              context); // جایگزین child: buildLoadingScreen()
-                                        });
-                                        return const SizedBox
-                                            .shrink(); // placeholder، چون overlay جدا است
-                                      },
+                              Expanded(
+                                child: Stack(
+                                  children: [
+                                    Focus(
+                                      autofocus: true,
+                                      focusNode: _focusNode,
+                                      child: _buildWebView(),
                                     ),
-                                    onEnd: () {
-                                      LoadingService
-                                          .hide(); // وقتی animation تمام شد، hide
-                                    },
-                                  ),
-                                if (isLoading && !(_hasInternet))
-                                  AnimatedOpacity(
-                                    opacity: _showSplashOverlay ? 1.0 : 1.0,
-                                    duration: const Duration(seconds: 2),
-                                    child: Builder(
-                                      // برای دسترسی به context
-                                      builder: (context) {
-                                        WidgetsBinding.instance
-                                            .addPostFrameCallback((_) {
-                                          LoadingService.show(
-                                              context); // جایگزین child: buildLoadingScreen()
-                                        });
-                                        return const SizedBox
-                                            .shrink(); // placeholder، چون overlay جدا است
-                                      },
-                                    ),
-                                    onEnd: () {
-                                      LoadingService
-                                          .hide(); // وقتی animation تمام شد، hide
-                                    },
-                                  ),
-                                if ((isError || _isLoadingTimeout))
-                                  ErrorPage(
-                                    returnPath: currentUrl,
-                                    returnAction: false,
-                                    errorCode: errorTypeCode,
-                                  ),
-                              ],
-                            ),
+                                    if (isLoading && !(isNotFirstLoading))
+                                      AnimatedOpacity(
+                                        opacity: _showSplashOverlay ? 1.0 : 1.0,
+                                        duration: const Duration(seconds: 2),
+                                        child: Builder(
+                                          // برای دسترسی به context
+                                          builder: (context) {
+                                            WidgetsBinding.instance
+                                                .addPostFrameCallback((_) {
+                                              LoadingService.show(
+                                                  context); // جایگزین child: buildLoadingScreen()
+                                            });
+                                            return const SizedBox
+                                                .shrink(); // placeholder، چون overlay جدا است
+                                          },
+                                        ),
+                                        onEnd: () {
+                                          LoadingService
+                                              .hide(); // وقتی animation تمام شد، hide
+                                        },
+                                      ),
+                                    if (isLoading && !(_hasInternet))
+                                      AnimatedOpacity(
+                                        opacity: _showSplashOverlay ? 1.0 : 1.0,
+                                        duration: const Duration(seconds: 2),
+                                        child: Builder(
+                                          // برای دسترسی به context
+                                          builder: (context) {
+                                            WidgetsBinding.instance
+                                                .addPostFrameCallback((_) {
+                                              LoadingService.show(
+                                                  context); // جایگزین child: buildLoadingScreen()
+                                            });
+                                            return const SizedBox
+                                                .shrink(); // placeholder، چون overlay جدا است
+                                          },
+                                        ),
+                                        onEnd: () {
+                                          LoadingService
+                                              .hide(); // وقتی animation تمام شد، hide
+                                        },
+                                      ),
+                                    if ((isError || _isLoadingTimeout))
+                                      ErrorPage(
+                                        returnPath: currentUrl,
+                                        returnAction: false,
+                                        errorCode: errorTypeCode,
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    );
-                  });
+                        );
+                      });
                 },
               ),
             ),
@@ -1645,15 +1798,15 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
     initialSettings.useShouldOverrideUrlLoading = true;
     initialSettings.javaScriptCanOpenWindowsAutomatically = true;
     initialSettings.userAgent =
-        "Mozilla/5.0 (Linux; Android 9; LG-H870 Build/PKQ1.190522.001) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/83.0.4103.106 Mobile Safari/537.36";
+    "Mozilla/5.0 (Linux; Android 9; LG-H870 Build/PKQ1.190522.001) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/83.0.4103.106 Mobile Safari/537.36";
     initialSettings.transparentBackground = true;
     initialSettings.safeBrowsingEnabled = true;
     initialSettings.disableDefaultErrorPage = true;
     initialSettings.supportMultipleWindows = false;
     initialSettings.verticalScrollbarThumbColor =
-        const Color.fromRGBO(0, 0, 0, 0.5);
+    const Color.fromRGBO(0, 0, 0, 0.5);
     initialSettings.horizontalScrollbarThumbColor =
-        const Color.fromRGBO(0, 0, 0, 0.5);
+    const Color.fromRGBO(0, 0, 0, 0.5);
     initialSettings.allowsLinkPreview = false;
     initialSettings.isFraudulentWebsiteWarningEnabled = true;
     initialSettings.disableLongPressContextMenuOnLinks = true;
@@ -1821,7 +1974,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
         if (LongPressAlertDialog.hitTestResultSupported
             .contains(hitTestResult.type)) {
           var requestFocusNodeHrefResult =
-              await controller.requestFocusNodeHref();
+          await controller.requestFocusNodeHref();
 
           if (requestFocusNodeHrefResult != null) {
             showDialog(
@@ -1871,9 +2024,9 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
               widget.webViewModel.favicon = fav;
             } else {
               if ((widget.webViewModel.favicon!.width == null &&
-                      !widget.webViewModel.favicon!.url
-                          .toString()
-                          .endsWith("favicon.ico")) ||
+                  !widget.webViewModel.favicon!.url
+                      .toString()
+                      .endsWith("favicon.ico")) ||
                   (fav.width != null &&
                       widget.webViewModel.favicon!.width != null &&
                       fav.width! > widget.webViewModel.favicon!.width!)) {
@@ -1888,12 +2041,12 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
 
           var screenshotData = controller
               .takeScreenshot(
-                  screenshotConfiguration: ScreenshotConfiguration(
-                      compressFormat: CompressFormat.JPEG, quality: 20))
+              screenshotConfiguration: ScreenshotConfiguration(
+                  compressFormat: CompressFormat.JPEG, quality: 20))
               .timeout(
-                const Duration(milliseconds: 1500),
-                onTimeout: () => null,
-              );
+            const Duration(milliseconds: 1500),
+            onTimeout: () => null,
+          );
           widget.webViewModel.screenshot = await screenshotData;
         }
         if (mounted) {
@@ -2011,15 +2164,61 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
         }
       },
       onDownloadStartRequest: (controller, url) async {
+        print('Download request: ${url.toString()}');
+
         String path = url.url.path;
         String fileName = path.substring(path.lastIndexOf('/') + 1);
-        await FlutterDownloader.enqueue(
-          url: url.toString(),
-          fileName: fileName,
-          savedDir: (await getTemporaryDirectory()).path,
-          showNotification: true,
-          openFileFromNotification: true,
-        );
+
+        // اگر fileName خالی است، نام پیش‌فرض بده
+        if (fileName.isEmpty || fileName == '/') {
+          fileName = 'download_${DateTime.now().millisecondsSinceEpoch}';
+        }
+
+        // بررسی اگر blob URL است
+        if (url.toString().startsWith('blob:')) {
+          print('Blob URL download detected, attempting to handle...');
+          // برای blob URLs باید از روش دیگری استفاده کنیم
+          // می‌توانیم JavaScript را فراخوانی کنیم تا blob را به base64 تبدیل کند
+          try {
+            final base64Data = await controller.evaluateJavascript(source: """
+              (async function() {
+                try {
+                  const response = await fetch('${url.toString()}');
+                  const blob = await response.blob();
+                  return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(blob);
+                  });
+                } catch (e) {
+                  console.error('Error converting blob:', e);
+                  return null;
+                }
+              })();
+            """);
+
+            if (base64Data != null) {
+              print('Blob converted to base64 successfully');
+              // اینجا می‌توانید base64 را ذخیره کنید
+            }
+          } catch (e) {
+            print('Error handling blob download: $e');
+          }
+        } else {
+          // دانلود عادی
+          try {
+            await FlutterDownloader.enqueue(
+              url: url.toString(),
+              fileName: fileName,
+              savedDir: (await getTemporaryDirectory()).path,
+              showNotification: true,
+              openFileFromNotification: true,
+            );
+            print('Download started: $fileName');
+          } catch (e) {
+            print('Error starting download: $e');
+          }
+        }
       },
       onReceivedServerTrustAuthRequest: (controller, challenge) async {
         var sslError = challenge.protectionSpace.sslError;
@@ -2054,7 +2253,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
                 if ([TargetPlatform.iOS].contains(defaultTargetPlatform)) {
                   _webViewController?.loadUrl(
                       urlRequest:
-                          URLRequest(url: await _webViewController?.getUrl()));
+                      URLRequest(url: await _webViewController?.getUrl()));
                 } else {
                   _webViewController?.reload();
                 }
@@ -2166,11 +2365,11 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
               Text(challenge.protectionSpace.host),
               TextField(
                   decoration:
-                      InputDecoration(labelText: localizations.username),
+                  InputDecoration(labelText: localizations.username),
                   controller: _httpAuthUsernameController),
               TextField(
                   decoration:
-                      InputDecoration(labelText: localizations.password),
+                  InputDecoration(labelText: localizations.password),
                   controller: _httpAuthPasswordController,
                   obscureText: true),
             ],
