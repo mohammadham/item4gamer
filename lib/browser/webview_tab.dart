@@ -1516,11 +1516,19 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
                         height: 64,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
+                          color: Colors.white,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 8,
+                              color: Colors.black.withOpacity(0.15),
+                              blurRadius: 12,
+                              spreadRadius: 0,
                               offset: const Offset(0, 4),
+                            ),
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 6,
+                              spreadRadius: 0,
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
@@ -1528,10 +1536,21 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
                           child: CachedNetworkImage(
                             imageUrl:
                                 'https://app.ila.chat/storage/bots/2/961818.png',
-                            placeholder: (context, url) =>
-                                const CircularProgressIndicator(),
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.error),
+                            placeholder: (context, url) => Container(
+                              color: Colors.white,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      const Color(0xFF003EFF)),
+                                ),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              color: Colors.white,
+                              child: const Icon(Icons.support_agent_rounded,
+                                  color: Color(0xFF003EFF), size: 32),
+                            ),
                             fit: BoxFit.cover,
                           ),
                         ),
