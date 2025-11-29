@@ -182,12 +182,88 @@
     }, true);
   }
 
+  // مدیریت ورودی‌های فایل در Shadow DOM
+  function handleFileInputs() {
+    const allElements = document.querySelectorAll('*');
+
+    allElements.forEach(element => {
+      if (element.shadowRoot) {
+        const shadowRoot = element.shadowRoot;
+        const fileInputs = shadowRoot.querySelectorAll('input[type=\"file\"]');
+
+        fileInputs.forEach(input => {
+          if (input._ilaFileHandlerAdded) return;
+          input._ilaFileHandlerAdded = true;
+
+          console.log('File input found in Shadow DOM, adding handler');
+
+          input.addEventListener('click', function(e) {
+            console.log('File input clicked in Shadow DOM');
+            // اگر رفتار پیش‌فرض کار نمی‌کند، می‌توانیم آن را متوقف کرده و دستی انجام دهیم
+            // e.preventDefault(); 
+            e.preventDefault(); // Stop native picker
+            
+            // ارسال درخواست به Flutter
+            if (window.flutter_inappwebview) {
+              window.flutter_inappwebview.callHandler('shadowFileInputClicked', {
+                accept: input.accept,
+                multiple: input.multiple,
+                id: input.id || 'unknown'
+              }).then(result => {
+                 if (result) {
+                    // دریافت فایل از فلاتر (Base64) و ست کردن در اینپوت
+                    // این بخش نیاز به پیاده‌سازی پیچیده DataTransfer دارد
+                    handleFileSelectionResult(input, result);
+                 }
+              }).catch(err => console.error('Error sending file input click:', err));
+            }
+          });
+        });
+      }
+    });
+  }
+
+  // تبدیل Base64 به File و ست کردن در Input
+  function handleFileSelectionResult(input, fileData) {
+      try {
+          // fileData: { name: string, data: base64, type: string }
+          if (!fileData) return;
+          
+          console.log('Setting file on input:', fileData.name);
+          
+          const byteCharacters = atob(fileData.data);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+              byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], {type: fileData.type});
+          const file = new File([blob], fileData.name, {type: fileData.type});
+          
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(file);
+          input.files = dataTransfer.files;
+          
+          // Trigger change event
+          const event = new Event('change', { bubbles: true });
+          input.dispatchEvent(event);
+                    // Trigger input event just in case
+          const inputEvent = new Event('input', { bubbles: true });
+          input.dispatchEvent(inputEvent);
+          
+          console.log('File set successfully on input');
+      } catch (e) {
+          console.error('Error setting file on input:', e);
+      }
+  }
+
   // اجرای دوره‌ای handlers
   function periodicUpdate() {
     if (detectIlaChat()) {
       handleAudioButtons();
       handleImages();
       fixMediaDisplay();
+      handleFileInputs(); // اضافه شده
     }
   }
 

@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'package:G4A4/browser/models/web_notification.dart';
+import 'package:G4A4/ila_chat/pages/ila_chat_page.dart';
 import 'package:G4A4/pages/loading_service.dart';
 import 'package:G4A4/services/notification_server_Services.dart';
 import 'package:flutter/foundation.dart';
@@ -36,6 +37,7 @@ import 'models/browser_model.dart';
 import 'models/window_model.dart';
 import 'package:G4A4/widgets/helpers.dart';
 import 'package:G4A4/services/deep_link_service.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 final webViewTabStateKey = GlobalKey<WebViewTabState>();
 
@@ -57,9 +59,9 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
   bool _isWindowClosed = false;
   final FocusNode _focusNode = FocusNode();
   final TextEditingController _httpAuthUsernameController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _httpAuthPasswordController =
-  TextEditingController();
+      TextEditingController();
 
   // From CustomWebView
   bool isLoading = true;
@@ -92,6 +94,8 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
     return widget.webViewModel.url.toString();
   }
 
+  bool _isPaymentPage = false;
+
   String errorTypeCode = '35';
 
   @override
@@ -107,7 +111,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
           if ([TargetPlatform.iOS].contains(defaultTargetPlatform)) {
             _webViewController?.loadUrl(
                 urlRequest:
-                URLRequest(url: await _webViewController?.getUrl()));
+                    URLRequest(url: await _webViewController?.getUrl()));
           } else {
             _webViewController?.reload();
           }
@@ -127,7 +131,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
         systemNavigationBarColor: SYSTEM_NAVIGATION_BAR_COLOR,
         // statusBarIconBrightness: STATUS_BAR_ICON_BRIGHTNESS,
         systemNavigationBarIconBrightness:
-        SYSTEM_NAVIGATION_BAR_ICON_BRIGHTNESS,
+            SYSTEM_NAVIGATION_BAR_ICON_BRIGHTNESS,
       ),
     );
     if (isWhiteBlackList) {
@@ -156,13 +160,13 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
     // Listen for deep link changes
     _deepLinkWorker =
         ever(Get.find<AppController>().deepLinksLink, (String newLink) {
-          if (newLink.isNotEmpty && newLink != currentUrl) {
-            print("Deep link changed to: $newLink");
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _handleDeepLinkChange(newLink);
-            });
-          }
+      if (newLink.isNotEmpty && newLink != currentUrl) {
+        print("Deep link changed to: $newLink");
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _handleDeepLinkChange(newLink);
         });
+      }
+    });
 
     // Register callback with DeepLinkService
     DeepLinkService().onDeepLinkReceived = (String link) {
@@ -215,33 +219,33 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
 
     final host = url.host;
     final savedPermission =
-    await WebNotificationPermissionDb.getPermission(host);
+        await WebNotificationPermissionDb.getPermission(host);
     if (savedPermission != null) {
       return WebNotificationPermission.values
           .firstWhere((e) => e.name.toLowerCase() == savedPermission);
     }
 
     final permission = await showDialog<WebNotificationPermission>(
-      context: context,
-      builder: (context) {
-        final localizations = AppLocalizations.of(context)!;
-        return AlertDialog(
-          title: Text(localizations.notificationPermissionRequest(host)),
-          actions: [
-            ElevatedButton(
-              onPressed: () =>
-                  Navigator.pop(context, WebNotificationPermission.DENIED),
-              child: Text(localizations.deny),
-            ),
-            ElevatedButton(
-              onPressed: () =>
-                  Navigator.pop(context, WebNotificationPermission.GRANTED),
-              child: Text(localizations.allow),
-            ),
-          ],
-        );
-      },
-    ) ??
+          context: context,
+          builder: (context) {
+            final localizations = AppLocalizations.of(context)!;
+            return AlertDialog(
+              title: Text(localizations.notificationPermissionRequest(host)),
+              actions: [
+                ElevatedButton(
+                  onPressed: () =>
+                      Navigator.pop(context, WebNotificationPermission.DENIED),
+                  child: Text(localizations.deny),
+                ),
+                ElevatedButton(
+                  onPressed: () =>
+                      Navigator.pop(context, WebNotificationPermission.GRANTED),
+                  child: Text(localizations.allow),
+                ),
+              ],
+            );
+          },
+        ) ??
         WebNotificationPermission.DENIED;
 
     await WebNotificationPermissionDb.savePermission(host, permission);
@@ -251,14 +255,14 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
   void _onShowNotification(WebNotification notification) async {
     webNotificationController?.notifications[notification.id] = notification;
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
-    AndroidNotificationDetails(
+        AndroidNotificationDetails(
       'web_notification_channel',
       'Web Notifications',
       importance: Importance.max,
       priority: Priority.high,
     );
     const DarwinNotificationDetails iOSPlatformChannelSpecifics =
-    DarwinNotificationDetails();
+        DarwinNotificationDetails();
     const NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: androidPlatformChannelSpecifics,
       iOS: iOSPlatformChannelSpecifics,
@@ -319,7 +323,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
     // Polyfill script
     try {
       String webNotificationJs =
-      await rootBundle.loadString('assets/js/web_notification.js');
+          await rootBundle.loadString('assets/js/web_notification.js');
       final jsNotificationApiUserScript = UserScript(
         source: webNotificationJs,
         injectionTime: UserScriptInjectionTime.AT_DOCUMENT_END,
@@ -327,7 +331,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
       userScripts.add(jsNotificationApiUserScript);
 
       String jsContent =
-      await rootBundle.loadString('assets/js/select-customizer.js');
+          await rootBundle.loadString('assets/js/select-customizer.js');
       final jsSelectCustomizerUserScript = UserScript(
         source: jsContent,
         injectionTime: UserScriptInjectionTime.AT_DOCUMENT_END,
@@ -336,7 +340,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
 
       // بارگذاری Blob URL Helper (باید قبل از Shadow DOM Interceptor باشد)
       String blobUrlHelperJs =
-      await rootBundle.loadString('assets/js/blob_url_helper.js');
+          await rootBundle.loadString('assets/js/blob_url_helper.js');
       final jsBlobUrlHelperUserScript = UserScript(
         source: blobUrlHelperJs,
         injectionTime: UserScriptInjectionTime.AT_DOCUMENT_START,
@@ -346,7 +350,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
 
       // بارگذاری Shadow DOM Interceptor
       String shadowDomJs =
-      await rootBundle.loadString('assets/js/shadow_dom_interceptor.js');
+          await rootBundle.loadString('assets/js/shadow_dom_interceptor.js');
       final jsShadowDomUserScript = UserScript(
         source: shadowDomJs,
         injectionTime: UserScriptInjectionTime.AT_DOCUMENT_END,
@@ -356,7 +360,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
 
       // بارگذاری ILA Chat Helper
       String ilaChatHelperJs =
-      await rootBundle.loadString('assets/js/ila_chat_helper.js');
+          await rootBundle.loadString('assets/js/ila_chat_helper.js');
       final jsIlaChatHelperUserScript = UserScript(
         source: ilaChatHelperJs,
         injectionTime: UserScriptInjectionTime.AT_DOCUMENT_END,
@@ -366,7 +370,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
 
       // بارگذاری Media Display Fixer
       String mediaDisplayFixerJs =
-      await rootBundle.loadString('assets/js/media_display_fixer.js');
+          await rootBundle.loadString('assets/js/media_display_fixer.js');
       final jsMediaDisplayFixerUserScript = UserScript(
         source: mediaDisplayFixerJs,
         injectionTime: UserScriptInjectionTime.AT_DOCUMENT_START,
@@ -416,7 +420,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
             'JavaScript handler: Notification.show called with args: $arguments');
         if (_webViewController != null) {
           final notification =
-          WebNotification.fromJson(arguments[0], _webViewController!);
+              WebNotification.fromJson(arguments[0], _webViewController!);
           _onShowNotification(notification);
         }
       },
@@ -504,23 +508,54 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
   }
 
   // متد جدید برای مدیریت media های Shadow DOM
-  void _handleShadowDomMedia(Map<String, dynamic> mediaInfo) {
+  void _handleShadowDomMedia(Map<String, dynamic> mediaInfo) async {
     try {
       final type = mediaInfo['type'] as String?;
       final url = mediaInfo['url'] as String?;
       final base64 = mediaInfo['base64'] as String?;
 
-      print('Handling Shadow DOM media: type=$type, url=$url, hasBase64=${base64 != null}');
+      print(
+          'Handling Shadow DOM media: type=$type, url=$url, hasBase64=${base64 != null}');
 
       if (type == null || url == null) {
         print('Invalid media info received');
         return;
       }
 
-      // اینجا می‌توانید منطق خاص خود را اضافه کنید
-      // برای مثال: ذخیره، نمایش، یا پردازش فایل
+      // اگر فایل صوتی است و base64 دارد، آن را ذخیره کنیم (برای دانلود ویس)
+      if ((type == 'audio' || type == 'audio_loaded') && base64 != null) {
+        // بررسی کنیم آیا کاربر درخواست دانلود داده؟
+        // یا شاید بهتر است یک دکمه دانلود نمایش دهیم؟
+        // فعلا اتوماتیک ذخیره نمی‌کنیم تا اسپم نشود، اما اگر کاربر روی دکمه دانلود کلیک کرد (که در وب ویو است)
+        // باید هندل شود.
+        // اما چون کاربر گفت \"دانلود آن از طریق برنامه\"، شاید منظورش این است که وقتی روی دکمه دانلود در چت کلیک می‌کند کار نمی‌کند.
 
-      // برای الان فقط log می‌کنیم
+        // اگر URL از نوع blob است، ما آن را به فایل تبدیل می‌کنیم
+        if (url.startsWith('blob:')) {
+          final dir = await getExternalStorageDirectory();
+          final fileName = 'voice_${DateTime.now().millisecondsSinceEpoch}.mp3';
+          final file = File('${dir!.path}/$fileName');
+
+          // تبدیل base64 به فایل
+          final splitData = base64.split(',');
+          final bytes =
+              base64Decode(splitData.length > 1 ? splitData[1] : splitData[0]);
+          await file.writeAsBytes(bytes);
+
+          print('Voice saved to: ${file.path}');
+          // نمایش اسنک بار با قابلیت باز کردن
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text('Voice saved: $fileName'),
+              action: SnackBarAction(
+                  label: 'Open',
+                  onPressed: () {
+                    // Open file logic
+                  }),
+            ));
+          }
+        }
+      }
       switch (type) {
         case 'audio':
         case 'audio_loaded':
@@ -541,7 +576,6 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
       }
 
       // اگر نیاز به ذخیره یا پردازش خاص دارید، می‌توانید اینجا اضافه کنید
-
     } catch (e) {
       print('Error handling Shadow DOM media: $e');
     }
@@ -734,6 +768,13 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
     //     showUrlBar = false;
     //   });
     // }
+
+    // Check if payment page
+    if (mounted) {
+      setState(() {
+        _isPaymentPage = UrlListManager.getUrlType(uri.toString()) == 'PAYMENT';
+      });
+    }
     print('Navigation URI: ${uri}');
     if (uri.path.contains(LOGOUT_PATH)) {
       await _webViewController!
@@ -793,7 +834,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
             var headers = navigationAction.request.headers;
             headers ??= {};
             var hasRefererHeader =
-            headers.keys.map((k) => k.toLowerCase()).contains('referer');
+                headers.keys.map((k) => k.toLowerCase()).contains('referer');
             if (!hasRefererHeader) {
               // use the full current URL (unsafe-url) or
               // create your own URL structure here based on a Referrer-Policy.
@@ -807,8 +848,8 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
       }
     }
     if (!uri.toString().contains(WebUri(URL).toString()) &&
-        ((navigationAction.isRedirect ?? false) ||
-            !navigationAction.isForMainFrame) ||
+            ((navigationAction.isRedirect ?? false) ||
+                !navigationAction.isForMainFrame) ||
         !uri.toString().contains(WebUri(URL).toString()) &&
             navigationAction.isForMainFrame) {
       if (await canLaunchUrl(uri)) {
@@ -841,7 +882,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
     try {
       if (Platform.isIOS || Platform.isMacOS) {
         isLoggedIn =
-        await CookieManager.instance().getAllCookies().then((cookies) {
+            await CookieManager.instance().getAllCookies().then((cookies) {
           bool result = false;
           print(cookies);
           if (cookies.isNotEmpty) {
@@ -921,6 +962,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
         prossect = 0;
         userfinalyLogged_in = false;
         _lastProgressUpdate = 0;
+        _isPaymentPage = false;
       });
     }
   }
@@ -979,11 +1021,11 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
     }
     _webViewController!
         .stopLoading()
-    // .then((_) {
-    // if (widget.webViewModel.tabIndex != null) {
-    //   windowModel.closeTab(windowModel.getCurrentTabIndex());
-    // }
-    // })
+        // .then((_) {
+        // if (widget.webViewModel.tabIndex != null) {
+        //   windowModel.closeTab(windowModel.getCurrentTabIndex());
+        // }
+        // })
         .then((_) {
       // windowModel.closeAllTabs();
 
@@ -1009,7 +1051,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
             isNotFirstLoading = true;
             Future.delayed(
                 const Duration(seconds: 1),
-                    () => mounted
+                () => mounted
                     ? setState(() => _showSplashOverlay = false)
                     : null);
           });
@@ -1156,7 +1198,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
         backIsClicked = true;
       });
       final copyBackForwardList =
-      await _webViewController!.getCopyBackForwardList();
+          await _webViewController!.getCopyBackForwardList();
       // ابتدا URL صفحه قبلی را بررسی کنیم
       final previousUrl = ReturnUrl;
       if (previousUrl.isNotEmpty) {
@@ -1165,11 +1207,11 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
 
         // بررسی آدرس‌های خاص
         if ((((previousUrl.contains('/my-account') ||
-            previousUrl.contains('/checkout/pay-out') ||
-            previousUrl.contains('/profile')) &&
-            authToken.isEmpty) ||
-            UrlListManager.getUrlType(previousUrl.toString()) ==
-                'PAYMENT') &&
+                        previousUrl.contains('/checkout/pay-out') ||
+                        previousUrl.contains('/profile')) &&
+                    authToken.isEmpty) ||
+                UrlListManager.getUrlType(previousUrl.toString()) ==
+                    'PAYMENT') &&
             previousUrl != currentUrl) {
           if (UrlListManager.getUrlType(previousUrl.toString()) == 'PAYMENT') {
             // برگشت به URL اصلی
@@ -1246,9 +1288,9 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
           }
           // بررسی آدرس‌های خاص
           if (((uri.path.contains('/my-account') ||
-              uri.path.contains('/checkout/pay-out') ||
-              uri.path.contains('/profile')) &&
-              authToken.isEmpty) ||
+                      uri.path.contains('/checkout/pay-out') ||
+                      uri.path.contains('/profile')) &&
+                  authToken.isEmpty) ||
               UrlListManager.getUrlType(uri.toString()) == 'PAYMENT') {
             if (UrlListManager.getUrlType(uri.toString()) == 'PAYMENT') {
               // برگشت به URL اصلی
@@ -1298,15 +1340,15 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
   void _startConnectivityCheck() {
     _connectivityTimer =
         Timer.periodic(const Duration(seconds: 30), (timer) async {
-          if (!mounted) {
-            timer.cancel();
-            return;
-          }
-          _hasInternet = await ConnectivityService().checkInternetConnectionV();
-          if (!_hasInternet && mounted && !isError) {
-            showCustomSnackBar(context, 'checkInternet');
-          }
-        });
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      _hasInternet = await ConnectivityService().checkInternetConnectionV();
+      if (!_hasInternet && mounted && !isError) {
+        showCustomSnackBar(context, 'checkInternet');
+      }
+    });
   }
 
   // From CustomWebView: File picker
@@ -1422,7 +1464,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Obx(() {
       bool isBrowserVisible =
-      Get.find<AppController>().getIsBrowserVisibleReturn();
+          Get.find<AppController>().getIsBrowserVisibleReturn();
 
       if (isBrowserVisible) {
         if (!Get.find<AppController>().getLoginResponseCookiesSet() &&
@@ -1459,186 +1501,222 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
           child: SafeArea(
             child: Scaffold(
               resizeToAvoidBottomInset: false,
+              floatingActionButton: _isPaymentPage
+                  ? null
+                  : GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const IlaChatPage()),
+                        );
+                      },
+                      child: Container(
+                        width: 64,
+                        height: 64,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ClipOval(
+                          child: CachedNetworkImage(
+                            imageUrl:
+                                'https://app.ila.chat/storage/bots/2/961818.png',
+                            placeholder: (context, url) =>
+                                const CircularProgressIndicator(),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
               body: LayoutBuilder(
                 builder: (context, constraints) {
                   return KeyboardVisibilityBuilder(
                       builder: (context, isKeyboardVisible) {
-                        final bottomInset =
-                            MediaQuery.of(context).viewInsets.bottom;
-                        return AnimatedPadding(
-                          duration: Duration(
-                              milliseconds: isKeyboardVisible
-                                  ? 5
-                                  : 5), // Adjust for smoothness
-                          curve: Curves.easeOut,
-                          padding: EdgeInsets.only(
-                              bottom: isKeyboardVisible ? bottomInset : 0),
-                          child: Column(
-                            children: [
-                              if (showUrlBar)
-                                Container(
-                                  margin: EdgeInsets.symmetric(
-                                      horizontal: 15, vertical: 15),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 10),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[100],
-                                    borderRadius: BorderRadius.circular(24),
-                                    border: Border.all(color: Colors.grey[300]!),
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color: Colors.black.withOpacity(0.05),
-                                          blurRadius: 2,
-                                          offset: Offset(0, 1))
-                                    ],
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      InkWell(
-                                        onTap: () async {
-                                          // if (mounted) {
-                                          //   setState(() => showUrlBar = false);
-                                          // }
-                                          if (await _webViewController!
-                                              .canGoBack()) {
-                                            if (ReturnUrl.isNotEmpty &&
-                                                (!ReturnUrl.contains(
-                                                    'about:blank') &&
-                                                    !ReturnUrl.contains(
-                                                        'pay-order') &&
-                                                    UrlListManager.getUrlType(
-                                                        ReturnUrl) !=
-                                                        'PAYMENT')) {
-                                              _webViewController!.goBack();
-                                            } else {
-                                              await _handleBackButton();
-                                            }
-                                          } else {
-                                            await _webViewController!.loadUrl(
-                                                urlRequest: URLRequest(
-                                                    url: WebUri(
-                                                        URL + CLOSE_NAV_BAR_URL)));
-                                          }
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.all(4),
-                                          decoration: BoxDecoration(
-                                            color: Colors.blue.withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          child: Icon(Icons.arrow_back,
-                                              size: 18, color: Colors.blue),
-                                        ),
-                                      ),
-                                      const Icon(Icons.lock,
-                                          size: 16, color: Colors.green),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          currentUrl,
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey[800],
-                                              fontWeight: FontWeight.w400),
-                                          textAlign: TextAlign.left,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Icon(Icons.search,
-                                          size: 18, color: Colors.grey[600]),
-                                      // InkWell(
-                                      //   onTap: () async {
-                                      //     // if (await _webViewController!.canGoBack()) {
-                                      //     //   _webViewController!.loadUrl(urlRequest: URLRequest(url: WebUri(URL+CLOSE_NAV_BAR_URL)));
-                                      //     // }else{
-                                      //     if (mounted) {
-                                      //       setState(() => showUrlBar = false);
-                                      //     }
-                                      //     _webViewController!
-                                      //         .loadUrl(
-                                      //             urlRequest: URLRequest(
-                                      //                 url: WebUri(URL +
-                                      //                     RETURN_NAV_BAR_URL)))
-                                      //         .then((_) {});
-                                      //     // }
-                                      //   },
-                                      //   child: Container(
-                                      //     padding: EdgeInsets.all(4),
-                                      //     decoration: BoxDecoration(
-                                      //       color: Colors.blue.withOpacity(0.1),
-                                      //       borderRadius: BorderRadius.circular(12),
-                                      //     ),
-                                      //     child: Icon(Icons.close_sharp,
-                                      //         size: 18, color: Colors.red[600]),
-                                      //   ),
-                                      // ),
-                                    ],
-                                  ),
-                                ),
-                              Expanded(
-                                child: Stack(
-                                  children: [
-                                    Focus(
-                                      autofocus: true,
-                                      focusNode: _focusNode,
-                                      child: _buildWebView(),
-                                    ),
-                                    if (isLoading && !(isNotFirstLoading))
-                                      AnimatedOpacity(
-                                        opacity: _showSplashOverlay ? 1.0 : 1.0,
-                                        duration: const Duration(seconds: 2),
-                                        child: Builder(
-                                          // برای دسترسی به context
-                                          builder: (context) {
-                                            WidgetsBinding.instance
-                                                .addPostFrameCallback((_) {
-                                              LoadingService.show(
-                                                  context); // جایگزین child: buildLoadingScreen()
-                                            });
-                                            return const SizedBox
-                                                .shrink(); // placeholder، چون overlay جدا است
-                                          },
-                                        ),
-                                        onEnd: () {
-                                          LoadingService
-                                              .hide(); // وقتی animation تمام شد، hide
-                                        },
-                                      ),
-                                    if (isLoading && !(_hasInternet))
-                                      AnimatedOpacity(
-                                        opacity: _showSplashOverlay ? 1.0 : 1.0,
-                                        duration: const Duration(seconds: 2),
-                                        child: Builder(
-                                          // برای دسترسی به context
-                                          builder: (context) {
-                                            WidgetsBinding.instance
-                                                .addPostFrameCallback((_) {
-                                              LoadingService.show(
-                                                  context); // جایگزین child: buildLoadingScreen()
-                                            });
-                                            return const SizedBox
-                                                .shrink(); // placeholder، چون overlay جدا است
-                                          },
-                                        ),
-                                        onEnd: () {
-                                          LoadingService
-                                              .hide(); // وقتی animation تمام شد، hide
-                                        },
-                                      ),
-                                    if ((isError || _isLoadingTimeout))
-                                      ErrorPage(
-                                        returnPath: currentUrl,
-                                        returnAction: false,
-                                        errorCode: errorTypeCode,
-                                      ),
-                                  ],
-                                ),
+                    final bottomInset =
+                        MediaQuery.of(context).viewInsets.bottom;
+                    return AnimatedPadding(
+                      duration: Duration(
+                          milliseconds: isKeyboardVisible
+                              ? 5
+                              : 5), // Adjust for smoothness
+                      curve: Curves.easeOut,
+                      padding: EdgeInsets.only(
+                          bottom: isKeyboardVisible ? bottomInset : 0),
+                      child: Column(
+                        children: [
+                          if (showUrlBar)
+                            Container(
+                              margin: EdgeInsets.symmetric(
+                                  horizontal: 15, vertical: 15),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(color: Colors.grey[300]!),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 2,
+                                      offset: Offset(0, 1))
+                                ],
                               ),
-                            ],
+                              child: Row(
+                                children: [
+                                  InkWell(
+                                    onTap: () async {
+                                      // if (mounted) {
+                                      //   setState(() => showUrlBar = false);
+                                      // }
+                                      if (await _webViewController!
+                                          .canGoBack()) {
+                                        if (ReturnUrl.isNotEmpty &&
+                                            (!ReturnUrl.contains(
+                                                    'about:blank') &&
+                                                !ReturnUrl.contains(
+                                                    'pay-order') &&
+                                                UrlListManager.getUrlType(
+                                                        ReturnUrl) !=
+                                                    'PAYMENT')) {
+                                          _webViewController!.goBack();
+                                        } else {
+                                          await _handleBackButton();
+                                        }
+                                      } else {
+                                        await _webViewController!.loadUrl(
+                                            urlRequest: URLRequest(
+                                                url: WebUri(
+                                                    URL + CLOSE_NAV_BAR_URL)));
+                                      }
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Icon(Icons.arrow_back,
+                                          size: 18, color: Colors.blue),
+                                    ),
+                                  ),
+                                  const Icon(Icons.lock,
+                                      size: 16, color: Colors.green),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      currentUrl,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[800],
+                                          fontWeight: FontWeight.w400),
+                                      textAlign: TextAlign.left,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Icon(Icons.search,
+                                      size: 18, color: Colors.grey[600]),
+                                  // InkWell(
+                                  //   onTap: () async {
+                                  //     // if (await _webViewController!.canGoBack()) {
+                                  //     //   _webViewController!.loadUrl(urlRequest: URLRequest(url: WebUri(URL+CLOSE_NAV_BAR_URL)));
+                                  //     // }else{
+                                  //     if (mounted) {
+                                  //       setState(() => showUrlBar = false);
+                                  //     }
+                                  //     _webViewController!
+                                  //         .loadUrl(
+                                  //             urlRequest: URLRequest(
+                                  //                 url: WebUri(URL +
+                                  //                     RETURN_NAV_BAR_URL)))
+                                  //         .then((_) {});
+                                  //     // }
+                                  //   },
+                                  //   child: Container(
+                                  //     padding: EdgeInsets.all(4),
+                                  //     decoration: BoxDecoration(
+                                  //       color: Colors.blue.withOpacity(0.1),
+                                  //       borderRadius: BorderRadius.circular(12),
+                                  //     ),
+                                  //     child: Icon(Icons.close_sharp,
+                                  //         size: 18, color: Colors.red[600]),
+                                  //   ),
+                                  // ),
+                                ],
+                              ),
+                            ),
+                          Expanded(
+                            child: Stack(
+                              children: [
+                                Focus(
+                                  autofocus: true,
+                                  focusNode: _focusNode,
+                                  child: _buildWebView(),
+                                ),
+                                if (isLoading && !(isNotFirstLoading))
+                                  AnimatedOpacity(
+                                    opacity: _showSplashOverlay ? 1.0 : 1.0,
+                                    duration: const Duration(seconds: 2),
+                                    child: Builder(
+                                      // برای دسترسی به context
+                                      builder: (context) {
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          LoadingService.show(
+                                              context); // جایگزین child: buildLoadingScreen()
+                                        });
+                                        return const SizedBox
+                                            .shrink(); // placeholder، چون overlay جدا است
+                                      },
+                                    ),
+                                    onEnd: () {
+                                      LoadingService
+                                          .hide(); // وقتی animation تمام شد، hide
+                                    },
+                                  ),
+                                if (isLoading && !(_hasInternet))
+                                  AnimatedOpacity(
+                                    opacity: _showSplashOverlay ? 1.0 : 1.0,
+                                    duration: const Duration(seconds: 2),
+                                    child: Builder(
+                                      // برای دسترسی به context
+                                      builder: (context) {
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          LoadingService.show(
+                                              context); // جایگزین child: buildLoadingScreen()
+                                        });
+                                        return const SizedBox
+                                            .shrink(); // placeholder، چون overlay جدا است
+                                      },
+                                    ),
+                                    onEnd: () {
+                                      LoadingService
+                                          .hide(); // وقتی animation تمام شد، hide
+                                    },
+                                  ),
+                                if ((isError || _isLoadingTimeout))
+                                  ErrorPage(
+                                    returnPath: currentUrl,
+                                    returnAction: false,
+                                    errorCode: errorTypeCode,
+                                  ),
+                              ],
+                            ),
                           ),
-                        );
-                      });
+                        ],
+                      ),
+                    );
+                  });
                 },
               ),
             ),
@@ -1767,6 +1845,76 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
     );
   }
 
+  Future<String?> onJavaScriptTextInputDialog(JsPromptRequest request) async {
+    final TextEditingController controller =
+        TextEditingController(text: request.defaultValue);
+
+    final titleStyle = TextStyle(
+      fontFamily: 'YekanBakh',
+      fontSize: 24,
+      fontWeight: FontWeight.w600,
+      height: 1.55,
+      color: Colors.black,
+    );
+
+    final contentStyle = TextStyle(
+      fontFamily: 'YekanBakh',
+      fontSize: 12,
+      fontWeight: FontWeight.w400,
+      height: 1.55,
+      color: Colors.black,
+    );
+
+    final buttonStyle = ButtonStyle(
+      backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+
+    return await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        content: TextField(
+          controller: controller,
+          style: contentStyle,
+          decoration: InputDecoration(hintText: request.message),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(controller.text),
+            child: Text(
+              AppLocalizations.of(context)!.confirm,
+              style: const TextStyle(
+                fontFamily: 'YekanBakh',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                height: 1.55,
+                color: Colors.white,
+              ),
+            ),
+            style: buttonStyle,
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              AppLocalizations.of(context)!.cancel,
+              style: const TextStyle(
+                fontFamily: 'YekanBakh',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                height: 1.55,
+                color: Colors.white,
+              ),
+            ),
+            style: buttonStyle,
+          ),
+        ],
+      ),
+    );
+  }
+
   InAppWebView _buildWebView() {
     var browserModel = Provider.of<BrowserModel>(context, listen: true);
     var windowModel = Provider.of<WindowModel>(context, listen: true);
@@ -1797,16 +1945,18 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
     initialSettings.useOnLoadResource = true;
     initialSettings.useShouldOverrideUrlLoading = true;
     initialSettings.javaScriptCanOpenWindowsAutomatically = true;
+    initialSettings.mediaPlaybackRequiresUserGesture = false;
+
     initialSettings.userAgent =
-    "Mozilla/5.0 (Linux; Android 9; LG-H870 Build/PKQ1.190522.001) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/83.0.4103.106 Mobile Safari/537.36";
+        "Mozilla/5.0 (Linux; Android 9; LG-H870 Build/PKQ1.190522.001) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/83.0.4103.106 Mobile Safari/537.36";
     initialSettings.transparentBackground = true;
     initialSettings.safeBrowsingEnabled = true;
     initialSettings.disableDefaultErrorPage = true;
     initialSettings.supportMultipleWindows = false;
     initialSettings.verticalScrollbarThumbColor =
-    const Color.fromRGBO(0, 0, 0, 0.5);
+        const Color.fromRGBO(0, 0, 0, 0.5);
     initialSettings.horizontalScrollbarThumbColor =
-    const Color.fromRGBO(0, 0, 0, 0.5);
+        const Color.fromRGBO(0, 0, 0, 0.5);
     initialSettings.allowsLinkPreview = false;
     initialSettings.isFraudulentWebsiteWarningEnabled = true;
     initialSettings.disableLongPressContextMenuOnLinks = true;
@@ -1815,12 +1965,14 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
     initialSettings.sharedCookiesEnabled = true;
     initialSettings.cacheMode = CacheMode.LOAD_DEFAULT;
     initialSettings.useHybridComposition = true;
+    initialSettings.allowsInlineMediaPlayback = true;
     initialSettings.supportZoom = false;
     initialSettings.javaScriptEnabled = true;
     initialSettings.initialScale = 1; // Changed from 0 to 1 (valid scale)
     initialSettings.maximumZoomScale = 1.0; // Float, but ensure non-null
     initialSettings.minimumZoomScale = 1.0; // Float, but ensure non-null
     initialSettings.pageZoom = 1.0; // Ensure non-null
+    initialSettings.geolocationEnabled = true;
 
     return InAppWebView(
       keepAlive: widget.webViewModel.keepAlive,
@@ -1835,6 +1987,15 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
       onJsAlert: (controller, jsAlertRequest) async {
         await onJavaScriptAlertDialog(jsAlertRequest);
         return JsAlertResponse(handledByClient: true);
+      },
+      onJsPrompt: (controller, jsPromptRequest) async {
+        final result = await onJavaScriptTextInputDialog(jsPromptRequest);
+        return JsPromptResponse(
+            handledByClient: true,
+            action: result != null
+                ? JsPromptResponseAction.CONFIRM
+                : JsPromptResponseAction.CANCEL,
+            value: result);
       },
       onJsConfirm: (controller, jsConfirmRequest) async {
         bool? result = await onJavaScriptConfirmDialog(jsConfirmRequest);
@@ -1895,6 +2056,13 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
       },
 
       onLoadStart: (controller, url) async {
+        // Check if payment page
+        if (mounted) {
+          setState(() {
+            _isPaymentPage =
+                UrlListManager.getUrlType(url.toString()) == 'PAYMENT';
+          });
+        }
         if (mounted) {
           setState(() {
             isLoading = true;
@@ -1974,7 +2142,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
         if (LongPressAlertDialog.hitTestResultSupported
             .contains(hitTestResult.type)) {
           var requestFocusNodeHrefResult =
-          await controller.requestFocusNodeHref();
+              await controller.requestFocusNodeHref();
 
           if (requestFocusNodeHrefResult != null) {
             showDialog(
@@ -1991,6 +2159,16 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
         }
       },
       onLoadStop: (controller, url) async {
+        if (url == null) return;
+
+        // Check if payment page
+        if (mounted) {
+          setState(() {
+            _isPaymentPage =
+                UrlListManager.getUrlType(url.toString()) == 'PAYMENT';
+          });
+        }
+
         if (mounted) _pullToRefreshController?.endRefreshing();
         await controller.evaluateJavascript(
             source: _getJavascriptInjectionDataLayerEventsList());
@@ -2024,9 +2202,9 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
               widget.webViewModel.favicon = fav;
             } else {
               if ((widget.webViewModel.favicon!.width == null &&
-                  !widget.webViewModel.favicon!.url
-                      .toString()
-                      .endsWith("favicon.ico")) ||
+                      !widget.webViewModel.favicon!.url
+                          .toString()
+                          .endsWith("favicon.ico")) ||
                   (fav.width != null &&
                       widget.webViewModel.favicon!.width != null &&
                       fav.width! > widget.webViewModel.favicon!.width!)) {
@@ -2041,12 +2219,12 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
 
           var screenshotData = controller
               .takeScreenshot(
-              screenshotConfiguration: ScreenshotConfiguration(
-                  compressFormat: CompressFormat.JPEG, quality: 20))
+                  screenshotConfiguration: ScreenshotConfiguration(
+                      compressFormat: CompressFormat.JPEG, quality: 20))
               .timeout(
-            const Duration(milliseconds: 1500),
-            onTimeout: () => null,
-          );
+                const Duration(milliseconds: 1500),
+                onTimeout: () => null,
+              );
           widget.webViewModel.screenshot = await screenshotData;
         }
         if (mounted) {
@@ -2200,6 +2378,35 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
             if (base64Data != null) {
               print('Blob converted to base64 successfully');
               // اینجا می‌توانید base64 را ذخیره کنید
+              try {
+                final splitData = base64Data.split(',');
+                final bytes = base64Decode(splitData.last);
+
+                // Try to guess extension if missing
+                if (!fileName.contains('.')) {
+                  final mimeType = splitData[0].split(':')[1].split(';')[0];
+                  if (mimeType.contains('/')) {
+                    fileName += '.' + mimeType.split('/').last;
+                  }
+                }
+
+                final directory = Platform.isAndroid
+                    ? await getExternalStorageDirectory()
+                    : await getApplicationDocumentsDirectory();
+
+                if (directory != null) {
+                  final file = File('${directory.path}/$fileName');
+                  await file.writeAsBytes(bytes);
+                  print('File saved to: ${file.path}');
+
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Saved: ${file.path}')));
+                  }
+                }
+              } catch (e) {
+                print('Error saving blob file: $e');
+              }
             }
           } catch (e) {
             print('Error handling blob download: $e');
@@ -2253,7 +2460,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
                 if ([TargetPlatform.iOS].contains(defaultTargetPlatform)) {
                   _webViewController?.loadUrl(
                       urlRequest:
-                      URLRequest(url: await _webViewController?.getUrl()));
+                          URLRequest(url: await _webViewController?.getUrl()));
                 } else {
                   _webViewController?.reload();
                 }
@@ -2365,11 +2572,11 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
               Text(challenge.protectionSpace.host),
               TextField(
                   decoration:
-                  InputDecoration(labelText: localizations.username),
+                      InputDecoration(labelText: localizations.username),
                   controller: _httpAuthUsernameController),
               TextField(
                   decoration:
-                  InputDecoration(labelText: localizations.password),
+                      InputDecoration(labelText: localizations.password),
                   controller: _httpAuthPasswordController,
                   obscureText: true),
             ],
