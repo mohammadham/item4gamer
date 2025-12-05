@@ -46,7 +46,6 @@
   "resendError": "Error in sending, try again",
   "helloEmail": "Hello! Please enter your email to login or register",
   "emailAddress": "Email address",
-
   "continue_": "Continue",
   "enterValidEmail": "Please enter a valid email",
   "enterPasswordForRegister": "Enter your password to register",
@@ -86,5 +85,47 @@
   "settings": "Settings",
   "username": "Username",
   "cancel": "Cancel",
-  "ok": "OK"
+  "ok": "OK",
+  
+  "onlineSupport": "Online Support",
+  "welcomeToSupport": "Welcome to Support\nHow can we help you?",
+  "typeYourMessage": "Type your message...",
+  "chatConnectionError": "Error connecting to chat server",
+  "messageSendError": "Error sending message",
+  "fileSendError": "Error sending file",
+  "voiceSendError": "Error sending voice message",
+  "downloadAttachment": "Download attachment",
+  "cannotOpenFile": "Cannot open file",
+  "recording": "Recording...",
+  "recordingTime": "{time}",
+  "@recordingTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "voiceMessage": "Voice message",
+  "tapToRecord": "Hold to record",
+  "releaseToSend": "Release to send",
+  "maxRecordingTime": "Max recording time: 3 minutes",
+  
+  "microphonePermission": "Microphone Access",
+  "microphonePermissionMessage": "To record voice messages, the app needs access to your microphone.",
+  "cameraPermission": "Camera Access",
+  "cameraPermissionMessage": "To take photos, the app needs access to your camera.",
+  "storagePermission": "Storage Access",
+  "storagePermissionMessage": "To select and send files, the app needs access to device storage.",
+  "permissionRequired": "Permission Required",
+  "grantPermission": "Grant Permission",
+  "goToSettings": "Go to Settings",
+  "permissionDenied": "Permission Denied",
+  "permissionPermanentlyDenied": "Permission has been permanently denied. Please enable it from app settings.",
+  
+  "selectImage": "Select Image",
+  "takePhoto": "Take Photo",
+  "selectFile": "Select File",
+  "imagePreview": "Image Preview",
+  "send": "Send",
+  "close": "Close"
 }

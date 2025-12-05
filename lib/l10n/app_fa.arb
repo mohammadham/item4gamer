@@ -46,7 +46,7 @@
   "resendError": "خطا در ارسال ، مجددا تلاش کنید",
   "helloEmail": "سلام! لطفا برای ورود و یا ثبت‌نام، ایمیل خود را وارد نمایید",
   "emailAddress": "آدرس ایمیل",
-    "continue_": "ادامه",
+  "continue_": "ادامه",
   "enterValidEmail": "لطفا ایمیل معتبر وارد کنید",
   "enterPasswordForRegister": "برای ثبت نام رمز عبور خود را وارد کنید",
   "enterPassword": "رمز عبور خود را وارد نمایید",
@@ -85,5 +85,47 @@
   "settings": "تنظیمات",
   "username": "نام کاربری",
   "cancel": "لغو",
-  "ok": "باشه"
+  "ok": "باشه",
+  
+  "onlineSupport": "پشتیبانی آنلاین",
+  "welcomeToSupport": "به پشتیبانی خوش آمدید\nچطور می‌توانیم کمکتان کنیم؟",
+  "typeYourMessage": "پیام خود را بنویسید...",
+  "chatConnectionError": "خطا در برقراری ارتباط با سرور چت",
+  "messageSendError": "خطا در ارسال پیام",
+  "fileSendError": "خطا در ارسال فایل",
+  "voiceSendError": "خطا در ارسال پیام صوتی",
+  "downloadAttachment": "دانلود فایل ضمیمه",
+  "cannotOpenFile": "امکان باز کردن فایل وجود ندارد",
+  "recording": "در حال ضبط...",
+  "recordingTime": "{time}",
+  "@recordingTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "voiceMessage": "پیام صوتی",
+  "tapToRecord": "برای ضبط نگه دارید",
+  "releaseToSend": "رها کنید برای ارسال",
+  "maxRecordingTime": "حداکثر زمان ضبط: 3 دقیقه",
+  
+  "microphonePermission": "دسترسی به میکروفون",
+  "microphonePermissionMessage": "برای ضبط پیام صوتی، برنامه نیاز به دسترسی به میکروفون دارد.",
+  "cameraPermission": "دسترسی به دوربین",
+  "cameraPermissionMessage": "برای گرفتن عکس، برنامه نیاز به دسترسی به دوربین دارد.",
+  "storagePermission": "دسترسی به فایل‌ها",
+  "storagePermissionMessage": "برای انتخاب و ارسال فایل، برنامه نیاز به دسترسی به حافظه دستگاه دارد.",
+  "permissionRequired": "دسترسی مورد نیاز",
+  "grantPermission": "اعطای دسترسی",
+  "goToSettings": "رفتن به تنظیمات",
+  "permissionDenied": "دسترسی رد شد",
+  "permissionPermanentlyDenied": "دسترسی به صورت دائمی رد شده است. لطفاً از تنظیمات برنامه اقدام کنید.",
+  
+  "selectImage": "انتخاب تصویر",
+  "takePhoto": "گرفتن عکس",
+  "selectFile": "انتخاب فایل",
+  "imagePreview": "پیش‌نمایش تصویر",
+  "send": "ارسال",
+  "close": "بستن"
 }

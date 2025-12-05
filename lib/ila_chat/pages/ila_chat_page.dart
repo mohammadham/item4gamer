@@ -4,10 +4,15 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/ila_service.dart';
 import '../models/ila_models.dart';
+import '../widgets/permission_dialog.dart';
+import '../widgets/voice_widgets.dart';
+import '../widgets/image_preview_dialog.dart';
 
 class IlaChatPage extends StatefulWidget {
   const IlaChatPage({Key? key}) : super(key: key);
@@ -25,15 +30,31 @@ class _IlaChatPageState extends State<IlaChatPage> {
   String? _conversationId;
   bool _isLoading = true;
   bool _isSending = false;
+  bool _isRecording = false;
 
-  // رنگ اصلی برند
-  final Color _primaryColor = const Color(0xFF003EFF);
-  final String _botAvatarUrl = 'https://app.ila.chat/storage/bots/2/961818.png';
+  // Permission states
+  bool _hasMicPermission = false;
+  bool _hasCameraPermission = false;
+  bool _hasStoragePermission = false;
+
+  // App logo path
+  final String _appLogoPath = 'assets/images/logoLight.png';
 
   @override
   void initState() {
     super.initState();
     _initChat();
+    _checkPermissions();
+  }
+
+  Color get _primaryColor => Theme.of(context).primaryColor;
+
+  Future<void> _checkPermissions() async {
+    _hasMicPermission = await Permission.microphone.isGranted;
+    _hasCameraPermission = await Permission.camera.isGranted;
+    _hasStoragePermission =
+        await Permission.storage.isGranted || await Permission.photos.isGranted;
+    if (mounted) setState(() {});
   }
 
   Future<void> _initChat() async {
@@ -61,8 +82,9 @@ class _IlaChatPageState extends State<IlaChatPage> {
         _isLoading = false;
       });
       if (mounted) {
+        final localizations = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('خطا در برقراری ارتباط با سرور چت')),
+          SnackBar(content: Text(localizations.chatConnectionError)),
         );
       }
     }
@@ -107,8 +129,9 @@ class _IlaChatPageState extends State<IlaChatPage> {
       await _loadMessages();
     } else {
       if (mounted) {
+        final localizations = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('خطا در ارسال پیام')),
+          SnackBar(content: Text(localizations.messageSendError)),
         );
       }
     }
@@ -119,6 +142,19 @@ class _IlaChatPageState extends State<IlaChatPage> {
   }
 
   Future<void> _pickAndSendFile() async {
+    // Check permission first
+    if (!_hasStoragePermission) {
+      final granted = await PermissionDialog.checkAndRequestPermission(
+        context,
+        PermissionType.storage,
+      );
+      if (granted) {
+        setState(() => _hasStoragePermission = true);
+      } else {
+        return;
+      }
+    }
+
     FilePickerResult? result = await FilePicker.platform.pickFiles();
 
     if (result != null) {
@@ -134,8 +170,9 @@ class _IlaChatPageState extends State<IlaChatPage> {
         await _loadMessages();
       } else {
         if (mounted) {
+          final localizations = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('خطا در ارسال فایل')),
+            SnackBar(content: Text(localizations.fileSendError)),
           );
         }
       }
@@ -146,39 +183,313 @@ class _IlaChatPageState extends State<IlaChatPage> {
     }
   }
 
+  Future<void> _pickAndSendImage() async {
+    // Check permission first
+    if (!_hasStoragePermission) {
+      final granted = await PermissionDialog.checkAndRequestPermission(
+        context,
+        PermissionType.storage,
+      );
+      if (granted) {
+        setState(() => _hasStoragePermission = true);
+      } else {
+        return;
+      }
+    }
+
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      File file = File(image.path);
+
+      // Show preview before sending
+      if (mounted) {
+        ImagePreviewDialog.show(
+          context,
+          imageSource: file,
+          onSend: () => _sendImageFile(file),
+        );
+      }
+    }
+  }
+
+  Future<void> _takeAndSendPhoto() async {
+    // Check camera permission first
+    if (!_hasCameraPermission) {
+      final granted = await PermissionDialog.checkAndRequestPermission(
+        context,
+        PermissionType.camera,
+      );
+      if (granted) {
+        setState(() => _hasCameraPermission = true);
+      } else {
+        return;
+      }
+    }
+
+    final ImagePicker picker = ImagePicker();
+    final XFile? photo = await picker.pickImage(source: ImageSource.camera);
+
+    if (photo != null) {
+      File file = File(photo.path);
+
+      // Show preview before sending
+      if (mounted) {
+        ImagePreviewDialog.show(
+          context,
+          imageSource: file,
+          onSend: () => _sendImageFile(file),
+        );
+      }
+    }
+  }
+
+  Future<void> _sendImageFile(File file) async {
+    setState(() {
+      _isSending = true;
+    });
+
+    final success = await _service.sendFile(_conversationId!, file, null);
+
+    if (success) {
+      await _loadMessages();
+    } else {
+      if (mounted) {
+        final localizations = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(localizations.fileSendError)),
+        );
+      }
+    }
+
+    setState(() {
+      _isSending = false;
+    });
+  }
+
+  Future<void> _startVoiceRecording() async {
+    // Check mic permission first
+    if (!_hasMicPermission) {
+      final granted = await PermissionDialog.checkAndRequestPermission(
+        context,
+        PermissionType.microphone,
+      );
+      if (granted) {
+        setState(() => _hasMicPermission = true);
+      } else {
+        return;
+      }
+    }
+
+    setState(() {
+      _isRecording = true;
+    });
+  }
+
+  void _onVoiceRecordingComplete(String filePath) async {
+    setState(() {
+      _isRecording = false;
+      _isSending = true;
+    });
+
+    final file = File(filePath);
+    final success = await _service.sendVoice(_conversationId!, file);
+
+    if (success) {
+      await _loadMessages();
+    } else {
+      if (mounted) {
+        final localizations = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(localizations.voiceSendError)),
+        );
+      }
+    }
+
+    setState(() {
+      _isSending = false;
+    });
+
+    // Delete temp file
+    try {
+      await file.delete();
+    } catch (e) {
+      print('Error deleting temp voice file: $e');
+    }
+  }
+
+  void _onVoiceRecordingCancel() {
+    setState(() {
+      _isRecording = false;
+    });
+  }
+
   Future<void> _launchFile(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       if (mounted) {
+        final localizations = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('امکان باز کردن فایل وجود ندارد')),
+          SnackBar(content: Text(localizations.cannotOpenFile)),
         );
       }
     }
   }
 
+  void _showAttachmentOptions() {
+    final localizations = AppLocalizations.of(context)!;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle bar
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              // Options
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildAttachmentOption(
+                    icon: Icons.image_rounded,
+                    label: localizations.selectImage,
+                    color: Colors.blue,
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      _pickAndSendImage();
+                    },
+                    hasPermission: _hasStoragePermission,
+                  ),
+                  _buildAttachmentOption(
+                    icon: Icons.camera_alt_rounded,
+                    label: localizations.takePhoto,
+                    color: Colors.green,
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      _takeAndSendPhoto();
+                    },
+                    hasPermission: _hasCameraPermission,
+                  ),
+                  _buildAttachmentOption(
+                    icon: Icons.attach_file_rounded,
+                    label: localizations.selectFile,
+                    color: Colors.orange,
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      _pickAndSendFile();
+                    },
+                    hasPermission: _hasStoragePermission,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAttachmentOption({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+    required bool hasPermission,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: hasPermission ? color.withOpacity(0.1) : Colors.grey[200],
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: hasPermission ? color : Colors.grey[400],
+              size: 28,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'YekanBakh',
+              fontSize: 12,
+              color: hasPermission ? Colors.black87 : Colors.grey[400],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB), // Light gray background
+      backgroundColor: const Color(0xFFF9FAFB),
       appBar: AppBar(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            CircleAvatar(
-              backgroundImage: NetworkImage(_botAvatarUrl),
-              radius: 16,
-              backgroundColor: Colors.transparent,
+            // App logo
+            ClipOval(
+              child: Image.asset(
+                _appLogoPath,
+                width: 32,
+                height: 32,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _primaryColor.withOpacity(0.1),
+                    ),
+                    child: Icon(
+                      Icons.support_agent_rounded,
+                      color: _primaryColor,
+                      size: 20,
+                    ),
+                  );
+                },
+              ),
             ),
-            const SizedBox(width: 8),
-            const Text(
-              'پشتیبانی آنلاین',
-              style: TextStyle(
-                  fontFamily: 'YekanBakh',
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold),
+            const SizedBox(width: 10),
+            Text(
+              localizations.onlineSupport,
+              style: const TextStyle(
+                fontFamily: 'YekanBakh',
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
@@ -197,15 +508,39 @@ class _IlaChatPageState extends State<IlaChatPage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Image.network(_botAvatarUrl, width: 80, height: 80),
+                            // App logo
+                            ClipOval(
+                              child: Image.asset(
+                                _appLogoPath,
+                                width: 80,
+                                height: 80,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width: 80,
+                                    height: 80,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: _primaryColor.withOpacity(0.1),
+                                    ),
+                                    child: Icon(
+                                      Icons.support_agent_rounded,
+                                      color: _primaryColor,
+                                      size: 40,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
                             const SizedBox(height: 16),
-                            const Text(
-                              'به پشتیبانی خوش آمدید\nچطور می‌توانیم کمکتان کنیم؟',
+                            Text(
+                              localizations.welcomeToSupport,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontFamily: 'YekanBakh',
-                                  color: Colors.grey,
-                                  fontSize: 16),
+                              style: const TextStyle(
+                                fontFamily: 'YekanBakh',
+                                color: Colors.grey,
+                                fontSize: 16,
+                              ),
                             ),
                           ],
                         ),
@@ -221,7 +556,15 @@ class _IlaChatPageState extends State<IlaChatPage> {
                       ),
           ),
           if (_isSending) const LinearProgressIndicator(minHeight: 2),
-          _buildInputArea(),
+          if (_isRecording)
+            VoiceRecorderWidget(
+              onRecordingComplete: _onVoiceRecordingComplete,
+              onCancel: _onVoiceRecordingCancel,
+              maxDurationSeconds: 180, // 3 minutes
+              primaryColor: _primaryColor,
+            )
+          else
+            _buildInputArea(),
         ],
       ),
     );
@@ -238,12 +581,29 @@ class _IlaChatPageState extends State<IlaChatPage> {
         children: [
           if (!isMe)
             Padding(
-              padding: const EdgeInsets.only(
-                  left: 4, right: 8), // Adjusted for RTL/LTR
-              child: CircleAvatar(
-                backgroundImage: NetworkImage(_botAvatarUrl),
-                radius: 14,
-                backgroundColor: Colors.transparent,
+              padding: const EdgeInsets.only(left: 4, right: 8),
+              child: ClipOval(
+                child: Image.asset(
+                  _appLogoPath,
+                  width: 28,
+                  height: 28,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _primaryColor.withOpacity(0.1),
+                      ),
+                      child: Icon(
+                        Icons.support_agent_rounded,
+                        color: _primaryColor,
+                        size: 18,
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           Flexible(
@@ -269,6 +629,7 @@ class _IlaChatPageState extends State<IlaChatPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Text message
                   if (msg.message != null && msg.message!.isNotEmpty)
                     Text(
                       msg.message!,
@@ -279,6 +640,64 @@ class _IlaChatPageState extends State<IlaChatPage> {
                         height: 1.5,
                       ),
                     ),
+                  // Voice messages
+                  if (msg.voices.isNotEmpty)
+                    ...msg.voices.map((v) => Padding(
+                          padding: EdgeInsets.only(
+                            top: msg.message != null && msg.message!.isNotEmpty
+                                ? 8.0
+                                : 0,
+                          ),
+                          child: VoicePlayerWidget(
+                            url: v,
+                            isMe: isMe,
+                            primaryColor: _primaryColor,
+                          ),
+                        )),
+                  // Images
+                  if (msg.images.isNotEmpty)
+                    ...msg.images.map((imgUrl) => Padding(
+                          padding: EdgeInsets.only(
+                            top: msg.message != null && msg.message!.isNotEmpty
+                                ? 8.0
+                                : 0,
+                          ),
+                          child: GestureDetector(
+                            onTap: () => ImagePreviewDialog.show(
+                              context,
+                              imageSource: imgUrl,
+                              showSendButton: false,
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: CachedNetworkImage(
+                                imageUrl: imgUrl,
+                                width: 200,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => Container(
+                                  width: 200,
+                                  height: 150,
+                                  color: Colors.grey[200],
+                                  child: const Center(
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) => Container(
+                                  width: 200,
+                                  height: 150,
+                                  color: Colors.grey[200],
+                                  child: Icon(
+                                    Icons.broken_image_rounded,
+                                    color: Colors.grey[400],
+                                    size: 40,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        )),
+                  // Files
                   if (msg.files.isNotEmpty)
                     ...msg.files.map((f) => Padding(
                           padding: const EdgeInsets.only(top: 8.0),
@@ -301,7 +720,8 @@ class _IlaChatPageState extends State<IlaChatPage> {
                                           isMe ? Colors.white : _primaryColor),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'دانلود فایل ضمیمه',
+                                    AppLocalizations.of(context)!
+                                        .downloadAttachment,
                                     style: TextStyle(
                                       fontFamily: 'YekanBakh',
                                       fontSize: 12,
@@ -324,6 +744,8 @@ class _IlaChatPageState extends State<IlaChatPage> {
   }
 
   Widget _buildInputArea() {
+    final localizations = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -340,15 +762,28 @@ class _IlaChatPageState extends State<IlaChatPage> {
       child: SafeArea(
         child: Row(
           children: [
+            // Attachment button
             Material(
               color: Colors.transparent,
               child: IconButton(
                 icon: const Icon(Icons.attach_file_rounded),
-                color: Colors.grey[600],
-                onPressed: _pickAndSendFile,
+                color:
+                    _hasStoragePermission ? Colors.grey[600] : Colors.grey[400],
+                onPressed: _showAttachmentOptions,
                 splashRadius: 24,
               ),
             ),
+            // Voice button
+            Material(
+              color: Colors.transparent,
+              child: IconButton(
+                icon: const Icon(Icons.mic_rounded),
+                color: _hasMicPermission ? Colors.grey[600] : Colors.grey[400],
+                onPressed: _startVoiceRecording,
+                splashRadius: 24,
+              ),
+            ),
+            // Text input
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
@@ -357,15 +792,18 @@ class _IlaChatPageState extends State<IlaChatPage> {
                 ),
                 child: TextField(
                   controller: _controller,
-                  decoration: const InputDecoration(
-                    hintText: 'پیام خود را بنویسید...',
-                    hintStyle: TextStyle(
-                        fontFamily: 'YekanBakh',
-                        fontSize: 14,
-                        color: Colors.grey),
+                  decoration: InputDecoration(
+                    hintText: localizations.typeYourMessage,
+                    hintStyle: const TextStyle(
+                      fontFamily: 'YekanBakh',
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
                     border: InputBorder.none,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
                     isDense: true,
                   ),
                   style: const TextStyle(fontFamily: 'YekanBakh', fontSize: 14),
@@ -375,6 +813,7 @@ class _IlaChatPageState extends State<IlaChatPage> {
               ),
             ),
             const SizedBox(width: 8),
+            // Send button
             Material(
               color: _primaryColor,
               shape: const CircleBorder(),
