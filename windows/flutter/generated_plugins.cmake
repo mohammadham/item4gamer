@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
+  audioplayers_windows
   connectivity_plus
   dynamic_color
   file_selector_windows
@@ -12,6 +13,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flutter_inappwebview_windows
   flutter_secure_storage_windows
   permission_handler_windows
+  record_windows
   screen_retriever_windows
   share_plus
   sqlite3_flutter_libs

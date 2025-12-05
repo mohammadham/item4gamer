@@ -77,8 +77,7 @@ class IlaService {
     return false;
   }
 
-  // آپلود فایل (فرض بر این است که در همان اندپوینت send با فیلد file انجام می‌شود)
-  // اگر اندپوینت جداگانه باشد باید تغییر کند
+  // آپلود فایل
   Future<bool> sendFile(
       String conversationId, File file, String? message) async {
     final url = Uri.parse(
@@ -92,7 +91,7 @@ class IlaService {
 
       // افزودن فایل
       final fileStream = http.MultipartFile.fromBytes(
-        'file', // نام فیلد فایل (باید بررسی شود)
+        'file', // نام فیلد فایل
         await file.readAsBytes(),
         filename: file.path.split('/').last,
       );
@@ -108,6 +107,35 @@ class IlaService {
       print('Error sending file: $respStr');
     } catch (e) {
       print('Exception sending file: $e');
+    }
+    return false;
+  }
+
+  // ارسال ویس
+  Future<bool> sendVoice(String conversationId, File file) async {
+    final url = Uri.parse(
+        '${IlaConfig.baseUrl}/conversation/$conversationId/message/send');
+    try {
+      final request = http.MultipartRequest('POST', url);
+      request.headers.addAll(_headers);
+
+      // افزودن فایل ویس
+      final fileStream = await http.MultipartFile.fromPath(
+        'file', // نام فیلد فایل (معمولاً مشابه فایل عادی است)
+        file.path,
+      );
+      request.files.add(fileStream);
+
+      final response = await request.send();
+      final respStr = await response.stream.bytesToString();
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(respStr);
+        return data['status'] == 'success';
+      }
+      print('Error sending voice: $respStr');
+    } catch (e) {
+      print('Exception sending voice: $e');
     }
     return false;
   }

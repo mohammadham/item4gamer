@@ -51,7 +51,8 @@ class WebViewTab extends StatefulWidget {
   State<WebViewTab> createState() => WebViewTabState();
 }
 
-class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
+class WebViewTabState extends State<WebViewTab>
+    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   InAppWebViewController? _webViewController;
   PullToRefreshController? _pullToRefreshController;
   FindInteractionController? _findInteractionController;
@@ -62,6 +63,9 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
       TextEditingController();
   final TextEditingController _httpAuthPasswordController =
       TextEditingController();
+
+  // FAB Animation
+  late AnimationController _fabAnimationController;
 
   // From CustomWebView
   bool isLoading = true;
@@ -154,6 +158,12 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
 
     userScripts = [];
     _loadUserScripts();
+
+    // FAB Animation Init
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..forward();
   }
 
   void _setupDeepLinkHandling() {
@@ -584,6 +594,7 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
 //webnotification
   @override
   void dispose() {
+    _fabAnimationController.dispose();
     _webViewController = null;
     widget.webViewModel.webViewController = null;
     widget.webViewModel.pullToRefreshController = null;
@@ -1503,55 +1514,64 @@ class WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
               resizeToAvoidBottomInset: false,
               floatingActionButton: _isPaymentPage
                   ? null
-                  : GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const IlaChatPage()),
-                        );
-                      },
-                      child: Container(
-                        width: 64,
-                        height: 64,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.15),
-                              blurRadius: 12,
-                              spreadRadius: 0,
-                              offset: const Offset(0, 4),
-                            ),
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 6,
-                              spreadRadius: 0,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                  : Padding(
+                      padding: const EdgeInsets.only(bottom: 80.0),
+                      child: RotationTransition(
+                        turns: CurvedAnimation(
+                          parent: _fabAnimationController,
+                          curve: Curves.elasticOut,
                         ),
-                        child: ClipOval(
-                          child: CachedNetworkImage(
-                            imageUrl:
-                                'https://app.ila.chat/storage/bots/2/961818.png',
-                            placeholder: (context, url) => Container(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const IlaChatPage()),
+                            );
+                          },
+                          child: Container(
+                            width: 64,
+                            height: 64,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
                               color: Colors.white,
-                              child: Center(
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      const Color(0xFF003EFF)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.15),
+                                  blurRadius: 12,
+                                  spreadRadius: 0,
+                                  offset: const Offset(0, 4),
                                 ),
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.08),
+                                  blurRadius: 6,
+                                  spreadRadius: 0,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: ClipOval(
+                              child: CachedNetworkImage(
+                                imageUrl:
+                                    'https://app.ila.chat/storage/bots/2/961818.png',
+                                placeholder: (context, url) => Container(
+                                  color: Colors.white,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          const Color(0xFF003EFF)),
+                                    ),
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) => Container(
+                                  color: Colors.white,
+                                  child: const Icon(Icons.support_agent_rounded,
+                                      color: Color(0xFF003EFF), size: 32),
+                                ),
+                                fit: BoxFit.cover,
                               ),
                             ),
-                            errorWidget: (context, url, error) => Container(
-                              color: Colors.white,
-                              child: const Icon(Icons.support_agent_rounded,
-                                  color: Color(0xFF003EFF), size: 32),
-                            ),
-                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
